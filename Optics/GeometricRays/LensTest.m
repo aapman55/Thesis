@@ -11,9 +11,7 @@ L1.computeImage();
 L1.draw();
 
 L2 = Lens(0.1, L1.computedImage.x+0.15, 0.5);
-O2 = LensObject(L1.computedImage.x,L1.computedImage.height);
-
-L2.setObject(O2);
+L2.setObject(L1.computedImage.toObject());
 L2.computeImage();
 
 L2.draw();
