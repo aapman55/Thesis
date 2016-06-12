@@ -7,17 +7,23 @@ classdef Lens < handle
         x;              %   x-location of the lens          [m]
         height;         %   height of the lens              [m]
         O;              %   Object placed in front of the lens
-        computedImage;  %   The computed image        
+        computedImage;  %   The computed image  
+        di;             %   Image distance                  [m]
     end
     
     methods
+       %========================================
+       % Constructor to initialise the lens
+       %========================================
         function obj = Lens(f, x, height)
            obj.f = f; 
            obj.x = x; 
            obj.height = height; 
         end
         
-        
+       %========================================
+       % Place an object in front of the lens
+       %========================================
         function setObject(obj, O)
            % Check if the input object really is a LensObject
            if (~isa(O, 'LensObject'))
@@ -34,8 +40,12 @@ classdef Lens < handle
            
            % Clear the computed image
            obj.computedImage = [];
+           obj.di = [];
         end
         
+       %========================================
+       % Compute the image location
+       %========================================
         function computeImage(obj)
            % Check if a LensObject is set
            if(isempty(obj.O))
@@ -47,31 +57,34 @@ classdef Lens < handle
                % Determine object distance
                do = obj.x - obj.O.x;        
               % Calculate the image distance
-               di = Lens.lensFormulaToImageDistance(obj.f, do);
+               obj.di = Lens.lensFormulaToImageDistance(obj.f, do);
                if (abs(obj.f - do) < eps && obj.O.height == 0)
                    % Calculate the image height 
                    hi = tand(obj.O.infinityAngle) * obj.f;
                else
                    % Calculate the image height
-                   hi = Lens.imageDistanceToImageHeight(do, di, obj.O.height);
+                   hi = Lens.imageDistanceToImageHeight(do, obj.di, obj.O.height);
                end
               % Calculate the exact x-coordinate of the image
-               xi = obj.x + di;
+               xi = obj.x + obj.di;
 
            else
                % There is no sound object distance
                % The image distance is the focal point
-               di = obj.f;
+               obj.di = obj.f;
                % Image height depends on the infinityAngle
-               hi = tand(obj.O.infinityAngle)*di;
+               hi = tand(obj.O.infinityAngle)*obj.di;
               % Calculate the exact x-coordinate of the image
-               xi = obj.x + di;
+               xi = obj.x + obj.di;
            end
            
            % Set the image object
            obj.computedImage = LensImage(xi, hi, atand(-obj.O.height/obj.f));
         end
         
+       %========================================
+       % Draw the light ray diagram
+       %========================================
         function handles = draw(obj)
             hold on;
             grid minor;
@@ -99,19 +112,70 @@ classdef Lens < handle
            plot([obj.O.x,obj.computedImage.x],[0,0],'color',[0,0,0])
             
            % Draw geometric optic rays
-           % Horizontal from object to lens then through focal point (but
-           % for now we just cheat)
-           geometricalRaysHandle = plot([obj.O.x, obj.x, obj.computedImage.x],[obj.O.height, obj.O.height, obj.computedImage.height],'color','magenta');
-           % Draw light ray through center of optic (we cheat again)
-           plot([obj.O.x, obj.computedImage.x],[obj.O.height, obj.computedImage.height],'color','magenta')
-           % Draw light ray from object to focal point, then after the lens
-           % going horizontally (we cheat here again)
-           plot([obj.O.x, obj.x, obj.computedImage.x],[obj.O.height, obj.computedImage.height, obj.computedImage.height],'color','magenta')
-          
+           % Determine object distance
+           do = obj.x - obj.O.x;
+           
+           %========================================
+           % Object side
+           %========================================
+           
+           % 1) From object horizontally to lens
+           if (abs(obj.O.x) == inf)
+               plot([obj.x - 2*obj.f, obj.x],[obj.O.height, obj.O.height],'color','magenta');
+           else
+               plot([obj.O.x, obj.x],[obj.O.height, obj.O.height],'color','magenta');
+           end
+           
+           % 2) From object to center of optic lens
+           geometricalRaysHandle = plot([obj.O.x, obj.x],[obj.O.height, 0],'color','magenta');
+           
+           % 3) From object through focal point at the side of the object
+           % continuing to the lens
+           slope1 = -obj.O.height/(do - obj.f);
+           plot([obj.O.x, obj.x],[obj.O.height, obj.f*slope1],'color','magenta');
+           
+           %========================================
+           % Image side
+           %========================================
+           % Check if the rays are imaginary
+           if (obj.di < 0)
+               lineStyle = '--';
+           else
+               lineStyle = '-';
+           end
+           
+           % 4) From lens to image through focal point
+           slope2 = -obj.O.height/obj.f;
+           if (abs(obj.computedImage.x) == inf)
+               plot([obj.x, obj.x + 2*obj.f],[obj.O.height, slope2*obj.f],'color','magenta','lineStyle',lineStyle);
+           else
+               plot([obj.x, obj.computedImage.x],[obj.O.height, obj.computedImage.height],'color','magenta','lineStyle',lineStyle);
+           end
+           
+           % 5) Ray through center of optic lens
+           slope3 = - obj.O.height/do;
+           if (abs(obj.computedImage.x) == inf)
+               plot([obj.x, obj.x + 2*obj.f],[0, 2*slope3*obj.f],'color','magenta','lineStyle',lineStyle);
+           else
+               plot([obj.x, obj.computedImage.x],[0, obj.computedImage.height],'color','magenta','lineStyle',lineStyle);
+           end
+           
+           % 6) Ray horizontally leaving the lens
+           height1 = obj.f*slope1;
+           if (abs(obj.computedImage.x) == inf)
+               plot([obj.x, obj.x + 2*obj.f],[height1, height1],'color','magenta','lineStyle',lineStyle);
+           else
+               plot([obj.x, obj.computedImage.x],[height1, height1],'color','magenta','lineStyle',lineStyle);
+           end
+           
            % Handles to be used for the legend
            handles = [lensObjectHandle, lensImageHandle, focalPointsHandle, geometricalRaysHandle];
         end
     end
+    
+    %========================================
+    % Static methods
+    %========================================
     
     methods (Static = true)
         function di = lensFormulaToImageDistance(f, do) 
