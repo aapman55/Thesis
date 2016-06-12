@@ -42,20 +42,37 @@ classdef Lens < handle
                error('You have not set a LensObject yet!')
            end
            
-           % Determine object distance
-           do = obj.x - obj.O.x;
-           % Calculate the image distance
-           di = Lens.lensFormulaToImageDistance(obj.f, do);
-           % Calculate the image height
-           hi = Lens.imageDistanceToImageHeight(do, di, obj.O.height);
-           % Calculate the exact x-coordinate of the image
-           xi = obj.x + di;
+           % If the rays are normal rays (not from infinity)
+           if(abs(obj.O.x) ~= inf)             
+               % Determine object distance
+               do = obj.x - obj.O.x;        
+              % Calculate the image distance
+               di = Lens.lensFormulaToImageDistance(obj.f, do);
+               if (abs(obj.f - do) < eps && obj.O.height == 0)
+                   % Calculate the image height 
+                   hi = tand(obj.O.infinityAngle) * obj.f;
+               else
+                   % Calculate the image height
+                   hi = Lens.imageDistanceToImageHeight(do, di, obj.O.height);
+               end
+              % Calculate the exact x-coordinate of the image
+               xi = obj.x + di;
+
+           else
+               % There is no sound object distance
+               % The image distance is the focal point
+               di = obj.f;
+               % Image height depends on the infinityAngle
+               hi = tand(obj.O.infinityAngle)*di;
+              % Calculate the exact x-coordinate of the image
+               xi = obj.x + di;
+           end
            
            % Set the image object
-           obj.computedImage = LensImage(xi, hi);
+           obj.computedImage = LensImage(xi, hi, atand(-obj.O.height/obj.f));
         end
         
-        function draw(obj)
+        function handles = draw(obj)
             hold on;
             grid minor;
            % Draw the object if there is an object
@@ -91,6 +108,8 @@ classdef Lens < handle
            % going horizontally (we cheat here again)
            plot([obj.O.x, obj.x, obj.computedImage.x],[obj.O.height, obj.computedImage.height, obj.computedImage.height],'color','magenta')
           
+           % Handles to be used for the legend
+           handles = [lensObjectHandle, lensImageHandle, focalPointsHandle, geometricalRaysHandle];
         end
     end
     

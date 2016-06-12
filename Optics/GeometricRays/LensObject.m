@@ -2,8 +2,10 @@ classdef LensObject
     %LENSOBJECT An object placed in front of the lens
     
     properties
-        x;              %   x-location of the object
-        height;         %   The height of the object
+        x;                  %   x-location of the object
+        height;             %   The height of the object
+        infinityAngle = 0;  %   Variable used when the rays are going to infinity, defines the angle
+                            %   Of these rays with the x-axis 
     end
     
     methods
