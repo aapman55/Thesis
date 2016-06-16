@@ -92,7 +92,35 @@ classdef Lens < handle
        %========================================
        % Draw the light ray diagram
        %========================================
-        function handles = draw(obj)
+        function handles = draw(obj, varargin)
+            
+            % Default variable values
+            rayColor = 'magenta';
+            rayWidth = 1;
+            
+            % Read out optional input
+            % Check if it is in the form 'property', 'value'
+            
+            if (mod(length(varargin),2) ~= 0)
+                error('Unbalanced input. Use format "property", "value"');
+            end
+            
+            %loop over the arguments
+            for i=1:length(varargin)/2
+                property = varargin{2*i-1};
+                value = varargin{2*i};
+                
+                % Check property
+                switch property
+                    case {'rayColor','raycolor'}
+                        rayColor = value;
+                    case {'rayWidth','raywidth'}
+                        rayWidth = value;
+                    otherwise
+                        error(['property ',property,' does not exist']);
+                end                
+            end
+            
             hold on;
             grid minor;
            % Draw the object if there is an object
@@ -144,22 +172,22 @@ classdef Lens < handle
            
            % 1) From object horizontally to lens
            if (abs(obj.O.x) == inf)
-               plot([obj.x - dX, obj.x],[obj.O.height, obj.O.height],'color','magenta');
+               plot([obj.x - dX, obj.x],[obj.O.height, obj.O.height],'color',rayColor,'lineWidth',rayWidth);
            else
-               plot([obj.O.x, obj.x],[obj.O.height, obj.O.height],'color','magenta');
+               plot([obj.O.x, obj.x],[obj.O.height, obj.O.height],'color',rayColor,'lineWidth',rayWidth);
            end
            
            % 2) From object to center of optic lens
 
-           geometricalRaysHandle = plot([obj.O.x, obj.x],[obj.O.height, 0],'color','magenta');
+           geometricalRaysHandle = plot([obj.O.x, obj.x],[obj.O.height, 0],'color',rayColor,'lineWidth',rayWidth);
            
            
            % 3) From object through focal point at the side of the object
            % continuing to the lens     
            if (abs(obj.O.x) == inf)
-               plot([obj.x - sign(do)*dX, obj.x],[0, dX*tand(obj.O.infinityAngle)],'color','magenta');
+               plot([obj.x - sign(do)*dX, obj.x],[0, dX*tand(obj.O.infinityAngle)],'color',rayColor,'lineWidth',rayWidth);
            else
-                geometricalRaysHandle = plot([obj.O.x, obj.x],[obj.O.height, objectRayFocalPointHitLensHeight],'color','magenta');
+                geometricalRaysHandle = plot([obj.O.x, obj.x],[obj.O.height, objectRayFocalPointHitLensHeight],'color',rayColor,'lineWidth',rayWidth);
            end
            
            %========================================
@@ -175,25 +203,25 @@ classdef Lens < handle
            % 4) From lens to image through focal point       
            
            if (abs(obj.computedImage.x) == inf)
-               plot([obj.x, obj.x + dX],[objectRayFocalPointHitLensHeight, objectRayFocalPointHitLensHeight + dX * tand(obj.computedImage.infinityAngle)],'color','magenta','lineStyle',lineStyle);
+               plot([obj.x, obj.x + dX],[objectRayFocalPointHitLensHeight, objectRayFocalPointHitLensHeight + dX * tand(obj.computedImage.infinityAngle)],'color',rayColor,'lineStyle',lineStyle,'lineWidth',rayWidth);
            elseif (obj.O.height == 0)
-               plot([obj.x, obj.computedImage.x],[objectRayFocalPointHitLensHeight, obj.computedImage.height],'color','magenta','lineStyle',lineStyle);
+               plot([obj.x, obj.computedImage.x],[objectRayFocalPointHitLensHeight, obj.computedImage.height],'color',rayColor,'lineStyle',lineStyle,'lineWidth',rayWidth);
            else
-               plot([obj.x, obj.computedImage.x],[obj.O.height, obj.computedImage.height],'color','magenta','lineStyle',lineStyle);
+               plot([obj.x, obj.computedImage.x],[obj.O.height, obj.computedImage.height],'color',rayColor,'lineStyle',lineStyle,'lineWidth',rayWidth);
            end
            
            % 5) Ray through center of optic lens
            slope3 = - obj.O.height/do;
            if (abs(obj.computedImage.x) == inf)
-               plot([obj.x, obj.x + dX],[0, slope3*dX],'color','magenta','lineStyle',lineStyle);
+               plot([obj.x, obj.x + dX],[0, slope3*dX],'color',rayColor,'lineStyle',lineStyle,'lineWidth',rayWidth);
            else
-               plot([obj.x, obj.computedImage.x],[0, obj.computedImage.height],'color','magenta','lineStyle',lineStyle);
+               plot([obj.x, obj.computedImage.x],[0, obj.computedImage.height],'color',rayColor,'lineStyle',lineStyle,'lineWidth',rayWidth);
            end
            
            % 6) Ray horizontally leaving the lens        
            
            if (obj.computedImage.height ~= 0 && abs(obj.computedImage.x) ~= inf)               
-               plot([obj.x, obj.computedImage.x],[objectRayFocalPointHitLensHeight, objectRayFocalPointHitLensHeight],'color','magenta','lineStyle',lineStyle);
+               plot([obj.x, obj.computedImage.x],[objectRayFocalPointHitLensHeight, objectRayFocalPointHitLensHeight],'color',rayColor,'lineStyle',lineStyle,'lineWidth',rayWidth);
            end
            
            % Handles to be used for the legend
