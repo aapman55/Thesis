@@ -115,6 +115,19 @@ classdef Lens < handle
            % Determine object distance
            do = obj.x - obj.O.x;
            
+           % Calculate at which height the object ray hits the lens
+           if (obj.O.height ~= 0 && abs(obj.O.x) ~= inf && do ~= obj.f)
+               slope1 = -obj.O.height/(do - obj.f);
+               objectRayFocalPointHitLensHeight = obj.f*slope1;               
+           elseif (abs(obj.O.x) == inf || do == obj.f)
+               objectRayFocalPointHitLensHeight = obj.O.height;
+           else
+               objectRayFocalPointHitLensHeight = do*tand(obj.O.infinityAngle);
+           end
+           
+           % Define how much you want to draw the infinity rays
+           dX = 2*obj.f;
+           
            %========================================
            % Object side
            %========================================
@@ -127,12 +140,17 @@ classdef Lens < handle
            end
            
            % 2) From object to center of optic lens
+
            geometricalRaysHandle = plot([obj.O.x, obj.x],[obj.O.height, 0],'color','magenta');
            
+           
            % 3) From object through focal point at the side of the object
-           % continuing to the lens
-           slope1 = -obj.O.height/(do - obj.f);
-           plot([obj.O.x, obj.x],[obj.O.height, obj.f*slope1],'color','magenta');
+           % continuing to the lens     
+           if (abs(obj.O.x) == inf)
+               plot([obj.x + sign(obj.O.x)*dX, obj.x],[0, 0],'color','magenta');
+           else
+                geometricalRaysHandle = plot([obj.O.x, obj.x],[obj.O.height, objectRayFocalPointHitLensHeight],'color','magenta');
+           end
            
            %========================================
            % Image side
@@ -144,10 +162,12 @@ classdef Lens < handle
                lineStyle = '-';
            end
            
-           % 4) From lens to image through focal point
-           slope2 = -obj.O.height/obj.f;
+           % 4) From lens to image through focal point       
+           
            if (abs(obj.computedImage.x) == inf)
-               plot([obj.x, obj.x + 2*obj.f],[obj.O.height, slope2*obj.f],'color','magenta','lineStyle',lineStyle);
+               plot([obj.x, obj.x + dX],[objectRayFocalPointHitLensHeight, objectRayFocalPointHitLensHeight + dX * tand(obj.computedImage.infinityAngle)],'color','magenta','lineStyle',lineStyle);
+           elseif (obj.O.height == 0)
+               plot([obj.x, obj.computedImage.x],[objectRayFocalPointHitLensHeight, obj.computedImage.height],'color','magenta','lineStyle',lineStyle);
            else
                plot([obj.x, obj.computedImage.x],[obj.O.height, obj.computedImage.height],'color','magenta','lineStyle',lineStyle);
            end
@@ -160,12 +180,10 @@ classdef Lens < handle
                plot([obj.x, obj.computedImage.x],[0, obj.computedImage.height],'color','magenta','lineStyle',lineStyle);
            end
            
-           % 6) Ray horizontally leaving the lens
-           height1 = obj.f*slope1;
-           if (abs(obj.computedImage.x) == inf)
-               plot([obj.x, obj.x + 2*obj.f],[height1, height1],'color','magenta','lineStyle',lineStyle);
-           else
-               plot([obj.x, obj.computedImage.x],[height1, height1],'color','magenta','lineStyle',lineStyle);
+           % 6) Ray horizontally leaving the lens        
+           
+           if (obj.computedImage.height ~= 0 && abs(obj.computedImage.x) ~= inf)               
+               plot([obj.x, obj.computedImage.x],[objectRayFocalPointHitLensHeight, objectRayFocalPointHitLensHeight],'color','magenta','lineStyle',lineStyle);
            end
            
            % Handles to be used for the legend

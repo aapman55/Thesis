@@ -1,4 +1,4 @@
-classdef LensObject
+classdef LensObject < handle
     %LENSOBJECT An object placed in front of the lens
     
     properties
@@ -12,6 +12,10 @@ classdef LensObject
         function obj = LensObject(x, height)
            obj.x = x;
            obj.height = height;            
+        end
+        
+        function setInfinityAngle(obj, angle)
+           obj.infinityAngle = angle; 
         end
         
         function handle = draw(obj)
