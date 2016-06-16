@@ -8,7 +8,7 @@ classdef Lens < handle
         height;         %   height of the lens              [m]
         O;              %   Object placed in front of the lens
         computedImage;  %   The computed image  
-        di;             %   Image distance                  [m]
+        di;             %   Image distance                  [m]        
     end
     
     methods
@@ -78,6 +78,13 @@ classdef Lens < handle
                xi = obj.x + obj.di;
            end
            
+           % Due to numerical precision infinity will not always be
+           % infinity, so every number larger than 1E9 will be set to
+           % infinity
+           if(abs(xi) > 1E9)
+               xi = sign(xi)*inf;
+           end
+
            % Set the image object
            obj.computedImage = LensImage(xi, hi, atand(-obj.O.height/obj.f));
         end
@@ -117,7 +124,10 @@ classdef Lens < handle
            
            % Calculate at which height the object ray hits the lens
            if (obj.O.height ~= 0 && abs(obj.O.x) ~= inf && do ~= obj.f)
-               slope1 = -obj.O.height/(do - obj.f);
+               
+               % Round of do-obj.f
+               do_objf = round(do - obj.f, 8, 'decimals');
+               slope1 = -obj.O.height/(do_objf);
                objectRayFocalPointHitLensHeight = obj.f*slope1;               
            elseif (abs(obj.O.x) == inf || do == obj.f)
                objectRayFocalPointHitLensHeight = obj.O.height;
@@ -126,7 +136,7 @@ classdef Lens < handle
            end
            
            % Define how much you want to draw the infinity rays
-           dX = 2*obj.f;
+           dX = obj.f;
            
            %========================================
            % Object side
@@ -134,7 +144,7 @@ classdef Lens < handle
            
            % 1) From object horizontally to lens
            if (abs(obj.O.x) == inf)
-               plot([obj.x - 2*obj.f, obj.x],[obj.O.height, obj.O.height],'color','magenta');
+               plot([obj.x - dX, obj.x],[obj.O.height, obj.O.height],'color','magenta');
            else
                plot([obj.O.x, obj.x],[obj.O.height, obj.O.height],'color','magenta');
            end
@@ -147,7 +157,7 @@ classdef Lens < handle
            % 3) From object through focal point at the side of the object
            % continuing to the lens     
            if (abs(obj.O.x) == inf)
-               plot([obj.x + sign(obj.O.x)*dX, obj.x],[0, 0],'color','magenta');
+               plot([obj.x - sign(do)*dX, obj.x],[0, dX*tand(obj.O.infinityAngle)],'color','magenta');
            else
                 geometricalRaysHandle = plot([obj.O.x, obj.x],[obj.O.height, objectRayFocalPointHitLensHeight],'color','magenta');
            end
@@ -175,7 +185,7 @@ classdef Lens < handle
            % 5) Ray through center of optic lens
            slope3 = - obj.O.height/do;
            if (abs(obj.computedImage.x) == inf)
-               plot([obj.x, obj.x + 2*obj.f],[0, 2*slope3*obj.f],'color','magenta','lineStyle',lineStyle);
+               plot([obj.x, obj.x + dX],[0, slope3*dX],'color','magenta','lineStyle',lineStyle);
            else
                plot([obj.x, obj.computedImage.x],[0, obj.computedImage.height],'color','magenta','lineStyle',lineStyle);
            end
@@ -197,7 +207,9 @@ classdef Lens < handle
     
     methods (Static = true)
         function di = lensFormulaToImageDistance(f, do) 
-           di = 1./(1./f-1./do); 
+           % Round off 1/do first
+           one_do = round(1./do, 7, 'significant');
+           di = 1./(1./f-one_do); 
         end
         
         function hi = imageDistanceToImageHeight(do, di, ho)

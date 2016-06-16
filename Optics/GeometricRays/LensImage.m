@@ -23,6 +23,11 @@ classdef LensImage
         function outputObject = toObject(obj)
            outputObject = LensObject(obj.x,obj.height); 
            outputObject.infinityAngle = obj.infinityAngle;
+           
+           % In case the image is at infinity
+           if (abs(obj.x) == inf)
+               outputObject.x = -obj.x;
+           end
         end
     end
     
