@@ -228,6 +228,13 @@ classdef Lens < handle
            
            plot(Xvec,Yvec,'color',rayColor,'lineStyle',lineStyle,'lineWidth',rayWidth);
            
+           % When imaginary object also plot the physical/real rays
+           if (obj.di < 0)
+               realXvec = [obj.x, obj.x + dX];
+               realYvec = extrapolateLine(Xvec, Yvec, realXvec);
+               plot(realXvec, realYvec,'color',rayColor,'lineWidth',rayWidth);
+           end
+           
            % 5) Ray through center of optic lens
            slope3 = - obj.O.height/do;
            if (abs(obj.computedImage.x) == inf)
@@ -239,6 +246,13 @@ classdef Lens < handle
            end
            
            plot(Xvec,Yvec,'color',rayColor,'lineStyle',lineStyle,'lineWidth',rayWidth);
+                      
+           % When imaginary object also plot the physical/real rays
+           if (obj.di < 0)
+               realXvec = [obj.x, obj.x + dX];
+               realYvec = extrapolateLine(Xvec, Yvec, realXvec);
+               plot(realXvec, realYvec,'color',rayColor,'lineWidth',rayWidth);
+           end
            
            % 6) Ray horizontally leaving the lens        
            
@@ -246,6 +260,14 @@ classdef Lens < handle
                Xvec = [obj.x, obj.computedImage.x];
                Yvec = [objectRayFocalPointHitLensHeight, objectRayFocalPointHitLensHeight];
                plot(Xvec,Yvec,'color',rayColor,'lineStyle',lineStyle,'lineWidth',rayWidth);
+                          
+               % When imaginary object also plot the physical/real rays
+               if (obj.di < 0)
+                   realXvec = [obj.x, obj.x + dX];
+                   realYvec = extrapolateLine(Xvec, Yvec, realXvec);
+                   plot(realXvec, realYvec,'color',rayColor,'lineWidth',rayWidth);
+               end
+           
            end
            
            % Handles to be used for the legend
