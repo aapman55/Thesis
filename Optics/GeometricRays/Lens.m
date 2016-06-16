@@ -175,23 +175,33 @@ classdef Lens < handle
            
            % 1) From object horizontally to lens
            if (abs(obj.O.x) == inf)
-               plot([obj.x - dX, obj.x],[obj.O.height, obj.O.height],'color',rayColor,'lineWidth',rayWidth);
+               Xvec = [obj.x - dX, obj.x];
+               Yvec = [obj.O.height, obj.O.height];
            else
-               plot([obj.O.x, obj.x],[obj.O.height, obj.O.height],'color',rayColor,'lineWidth',rayWidth);
+               Xvec = [obj.O.x, obj.x];
+               Yvec = [obj.O.height, obj.O.height];
            end
            
+           plot(Xvec,Yvec,'color',rayColor,'lineWidth',rayWidth);
+           
            % 2) From object to center of optic lens
+           Xvec = [obj.O.x, obj.x];
+           Yvec = [obj.O.height, 0];
 
-           geometricalRaysHandle = plot([obj.O.x, obj.x],[obj.O.height, 0],'color',rayColor,'lineWidth',rayWidth);
+           geometricalRaysHandle = plot(Xvec, Yvec,'color',rayColor,'lineWidth',rayWidth);
            
            
            % 3) From object through focal point at the side of the object
            % continuing to the lens     
            if (abs(obj.O.x) == inf)
-               plot([obj.x - sign(do)*dX, obj.x],[0, dX*tand(obj.O.infinityAngle)],'color',rayColor,'lineWidth',rayWidth);
+               Xvec = [obj.x - sign(do)*dX, obj.x];
+               Yvec = [0, dX*tand(obj.O.infinityAngle)];
            else
-                geometricalRaysHandle = plot([obj.O.x, obj.x],[obj.O.height, objectRayFocalPointHitLensHeight],'color',rayColor,'lineWidth',rayWidth);
+               Xvec = [obj.O.x, obj.x];
+               Yvec = [obj.O.height, objectRayFocalPointHitLensHeight];
            end
+           
+           plot(Xvec, Yvec,'color',rayColor,'lineWidth',rayWidth);
            
            %========================================
            % Image side
@@ -206,25 +216,36 @@ classdef Lens < handle
            % 4) From lens to image through focal point       
            
            if (abs(obj.computedImage.x) == inf)
-               plot([obj.x, obj.x + dX],[objectRayFocalPointHitLensHeight, objectRayFocalPointHitLensHeight + dX * tand(obj.computedImage.infinityAngle)],'color',rayColor,'lineStyle',lineStyle,'lineWidth',rayWidth);
+               Xvec = [obj.x, obj.x + dX];
+               Yvec = [objectRayFocalPointHitLensHeight, objectRayFocalPointHitLensHeight + dX * tand(obj.computedImage.infinityAngle)];               
            elseif (obj.O.height == 0)
-               plot([obj.x, obj.computedImage.x],[objectRayFocalPointHitLensHeight, obj.computedImage.height],'color',rayColor,'lineStyle',lineStyle,'lineWidth',rayWidth);
+               Xvec = [obj.x, obj.computedImage.x];
+               Yvec = [objectRayFocalPointHitLensHeight, obj.computedImage.height];              
            else
-               plot([obj.x, obj.computedImage.x],[obj.O.height, obj.computedImage.height],'color',rayColor,'lineStyle',lineStyle,'lineWidth',rayWidth);
+               Xvec = [obj.x, obj.computedImage.x];
+               Yvec = [obj.O.height, obj.computedImage.height];
            end
+           
+           plot(Xvec,Yvec,'color',rayColor,'lineStyle',lineStyle,'lineWidth',rayWidth);
            
            % 5) Ray through center of optic lens
            slope3 = - obj.O.height/do;
            if (abs(obj.computedImage.x) == inf)
-               plot([obj.x, obj.x + dX],[0, slope3*dX],'color',rayColor,'lineStyle',lineStyle,'lineWidth',rayWidth);
+               Xvec = [obj.x, obj.x + dX];
+               Yvec = [0, slope3*dX];
            else
-               plot([obj.x, obj.computedImage.x],[0, obj.computedImage.height],'color',rayColor,'lineStyle',lineStyle,'lineWidth',rayWidth);
+               Xvec = [obj.x, obj.computedImage.x];
+               Yvec = [0, obj.computedImage.height];
            end
+           
+           plot(Xvec,Yvec,'color',rayColor,'lineStyle',lineStyle,'lineWidth',rayWidth);
            
            % 6) Ray horizontally leaving the lens        
            
            if (obj.computedImage.height ~= 0 && abs(obj.computedImage.x) ~= inf)               
-               plot([obj.x, obj.computedImage.x],[objectRayFocalPointHitLensHeight, objectRayFocalPointHitLensHeight],'color',rayColor,'lineStyle',lineStyle,'lineWidth',rayWidth);
+               Xvec = [obj.x, obj.computedImage.x];
+               Yvec = [objectRayFocalPointHitLensHeight, objectRayFocalPointHitLensHeight];
+               plot(Xvec,Yvec,'color',rayColor,'lineStyle',lineStyle,'lineWidth',rayWidth);
            end
            
            % Handles to be used for the legend
