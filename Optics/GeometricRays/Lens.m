@@ -8,7 +8,8 @@ classdef Lens < handle
         height;         %   height of the lens              [m]
         O;              %   Object placed in front of the lens
         computedImage;  %   The computed image  
-        di;             %   Image distance                  [m]        
+        di;             %   Image distance                  [m]    
+        do;             %   Object distance
     end
     
     methods
@@ -38,6 +39,9 @@ classdef Lens < handle
            % Passed all tests! Set the object.
            obj.O = O; 
            
+           % Determine object distance
+           obj.do = obj.x - obj.O.x;
+               
            % Clear the computed image
            obj.computedImage = [];
            obj.di = [];
@@ -54,16 +58,15 @@ classdef Lens < handle
            
            % If the rays are normal rays (not from infinity)
            if(abs(obj.O.x) ~= inf)             
-               % Determine object distance
-               do = obj.x - obj.O.x;        
+                       
               % Calculate the image distance
-               obj.di = Lens.lensFormulaToImageDistance(obj.f, do);
-               if (abs(obj.f - do) < eps && obj.O.height == 0)
+               obj.di = Lens.lensFormulaToImageDistance(obj.f*sign(obj.do), obj.do);
+               if (abs(obj.f - obj.do) < eps && obj.O.height == 0)
                    % Calculate the image height 
                    hi = tand(obj.O.infinityAngle) * obj.f;
                else
                    % Calculate the image height
-                   hi = Lens.imageDistanceToImageHeight(do, obj.di, obj.O.height);
+                   hi = Lens.imageDistanceToImageHeight(obj.do, obj.di, obj.O.height);
                end
               % Calculate the exact x-coordinate of the image
                xi = obj.x + obj.di;
@@ -71,7 +74,7 @@ classdef Lens < handle
            else
                % There is no sound object distance
                % The image distance is the focal point
-               obj.di = obj.f;
+               obj.di = obj.f*sign(obj.do);
                % Image height depends on the infinityAngle
                hi = tand(obj.O.infinityAngle)*obj.di;
               % Calculate the exact x-coordinate of the image
@@ -86,7 +89,7 @@ classdef Lens < handle
            end
 
            % Set the image object
-           obj.computedImage = LensImage(xi, hi, atand(-obj.O.height/obj.f));
+           obj.computedImage = LensImage(xi, hi, atand(-obj.O.height/obj.f*sign(obj.do)));
         end
         
        %========================================
@@ -150,24 +153,22 @@ classdef Lens < handle
            plot([obj.O.x,obj.computedImage.x],[0,0],'color',[0,0,0])
             
            % Draw geometric optic rays
-           % Determine object distance
-           do = obj.x - obj.O.x;
            
            % Calculate at which height the object ray hits the lens
-           if (obj.O.height ~= 0 && abs(obj.O.x) ~= inf && do ~= obj.f)
+           if (obj.O.height ~= 0 && abs(obj.O.x) ~= inf && obj.do ~= obj.f*sign(obj.do))
                
                % Round of do-obj.f
-               do_objf = round(do - obj.f, 8, 'decimals');
+               do_objf = round(obj.do - obj.f*sign(obj.do), 8, 'decimals');
                slope1 = -obj.O.height/(do_objf);
-               objectRayFocalPointHitLensHeight = obj.f*slope1;               
-           elseif (abs(obj.O.x) == inf || do == obj.f)
+               objectRayFocalPointHitLensHeight = obj.f*slope1*sign(obj.do);               
+           elseif (abs(obj.O.x) == inf || obj.do == obj.f*sign(obj.do))
                objectRayFocalPointHitLensHeight = obj.O.height;
            else
-               objectRayFocalPointHitLensHeight = do*tand(obj.O.infinityAngle);
+               objectRayFocalPointHitLensHeight = obj.do*tand(obj.O.infinityAngle);
            end
            
            % Define how much you want to draw the infinity rays
-           dX = obj.f;
+           dX = obj.f*sign(obj.do);
            
            %========================================
            % Object side
@@ -194,7 +195,7 @@ classdef Lens < handle
            % 3) From object through focal point at the side of the object
            % continuing to the lens     
            if (abs(obj.O.x) == inf)
-               Xvec = [obj.x - sign(do)*dX, obj.x];
+               Xvec = [obj.x - dX, obj.x];
                Yvec = [0, dX*tand(obj.O.infinityAngle)];
            else
                Xvec = [obj.O.x, obj.x];
@@ -206,11 +207,12 @@ classdef Lens < handle
            %========================================
            % Image side
            %========================================
+           lineStyle = '-';
+           imaginary = false;
            % Check if the rays are imaginary
-           if (obj.di < 0)
+           if (obj.di*obj.do < 0)
                lineStyle = '--';
-           else
-               lineStyle = '-';
+               imaginary = true;
            end
            
            % 4) From lens to image through focal point       
@@ -229,14 +231,14 @@ classdef Lens < handle
            plot(Xvec,Yvec,'color',rayColor,'lineStyle',lineStyle,'lineWidth',rayWidth);
            
            % When imaginary object also plot the physical/real rays
-           if (obj.di < 0)
+           if (imaginary)
                realXvec = [obj.x, obj.x + dX];
                realYvec = extrapolateLine(Xvec, Yvec, realXvec);
                plot(realXvec, realYvec,'color',rayColor,'lineWidth',rayWidth);
            end
            
            % 5) Ray through center of optic lens
-           slope3 = - obj.O.height/do;
+           slope3 = - obj.O.height/obj.do;
            if (abs(obj.computedImage.x) == inf)
                Xvec = [obj.x, obj.x + dX];
                Yvec = [0, slope3*dX];
@@ -248,7 +250,7 @@ classdef Lens < handle
            plot(Xvec,Yvec,'color',rayColor,'lineStyle',lineStyle,'lineWidth',rayWidth);
                       
            % When imaginary object also plot the physical/real rays
-           if (obj.di < 0)
+           if (imaginary)
                realXvec = [obj.x, obj.x + dX];
                realYvec = extrapolateLine(Xvec, Yvec, realXvec);
                plot(realXvec, realYvec,'color',rayColor,'lineWidth',rayWidth);
@@ -262,7 +264,7 @@ classdef Lens < handle
                plot(Xvec,Yvec,'color',rayColor,'lineStyle',lineStyle,'lineWidth',rayWidth);
                           
                % When imaginary object also plot the physical/real rays
-               if (obj.di < 0)
+               if (imaginary)
                    realXvec = [obj.x, obj.x + dX];
                    realYvec = extrapolateLine(Xvec, Yvec, realXvec);
                    plot(realXvec, realYvec,'color',rayColor,'lineWidth',rayWidth);
