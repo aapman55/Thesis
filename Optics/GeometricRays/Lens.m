@@ -140,6 +140,9 @@ classdef Lens < handle
            % Draw the lens itself
            plot([obj.x,obj.x],[-0.5*obj.height, 0.5*obj.height],'color',[0,0,0],'linewidth',2)
            
+           % Write the focal length of the lens on top
+           text(obj.x, 0.6*obj.height, ['f = ',num2str(obj.f)]);
+           
            % Draw lens focal points
            focalPointsHandle = scatter([obj.x-obj.f, obj.x+obj.f],[0,0],'markerfacecolor','k');
            
