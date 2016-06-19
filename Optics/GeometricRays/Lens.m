@@ -161,7 +161,7 @@ classdef Lens < handle
                do_objf = round(obj.do - obj.f*sign(obj.do), 8, 'decimals');
                slope1 = -obj.O.height/(do_objf);
                objectRayFocalPointHitLensHeight = obj.f*slope1*sign(obj.do);               
-           elseif (abs(obj.O.x) == inf || obj.do == obj.f*sign(obj.do))
+           elseif (abs(obj.O.x) == inf || (obj.do == obj.f*sign(obj.do) && obj.O.height ~= 0))
                objectRayFocalPointHitLensHeight = obj.O.height;
            else
                objectRayFocalPointHitLensHeight = obj.do*tand(obj.O.infinityAngle);
