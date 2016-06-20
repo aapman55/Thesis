@@ -10,6 +10,7 @@ classdef Lens < handle
         computedImage;  %   The computed image  
         di;             %   Image distance                  [m]    
         do;             %   Object distance
+        orientation = 1;%   1 for left to right, 2 for right to left
     end
     
     methods
@@ -48,9 +49,27 @@ classdef Lens < handle
         end
         
        %========================================
+       % Change the orientation of the object
+       %========================================
+       function setOrientation(obj, orientation)
+           if(orientation ~= 1 && orientation ~= 2)
+               error('Only 1 and 2 are valid orientations');
+           end
+           obj.orientation = orientation;
+       end
+        
+       %========================================
        % Compute the image location
        %========================================
-        function computeImage(obj)
+       function computeImage(obj)
+          if (obj.orientation == 1)
+              obj.computeImageLeftToRight();
+          else
+              obj.computeImageRightToLeft()
+          end
+       end
+       
+        function computeImageLeftToRight(obj)
            % Check if a LensObject is set
            if(isempty(obj.O))
                error('You have not set a LensObject yet!')
@@ -60,7 +79,7 @@ classdef Lens < handle
            if(abs(obj.O.x) ~= inf)             
                        
               % Calculate the image distance
-               obj.di = Lens.lensFormulaToImageDistance(obj.f*sign(obj.do), obj.do);
+               obj.di = Lens.lensFormulaToImageDistance(obj.f, obj.do);
                if (abs(obj.f - obj.do) < eps && obj.O.height == 0)
                    % Calculate the image height 
                    hi = tand(obj.O.infinityAngle) * obj.f;
@@ -74,7 +93,7 @@ classdef Lens < handle
            else
                % There is no sound object distance
                % The image distance is the focal point
-               obj.di = obj.f*sign(obj.do);
+               obj.di = obj.f;
                % Image height depends on the infinityAngle
                hi = tand(obj.O.infinityAngle)*obj.di;
               % Calculate the exact x-coordinate of the image
@@ -89,7 +108,49 @@ classdef Lens < handle
            end
 
            % Set the image object
-           obj.computedImage = LensImage(xi, hi, atand(-obj.O.height/obj.f*sign(obj.do)));
+           obj.computedImage = LensImage(xi, hi, atand(-obj.O.height/obj.f));
+        end
+        
+        function computeImageRightToLeft(obj)
+           % Check if a LensObject is set
+           if(isempty(obj.O))
+               error('You have not set a LensObject yet!')
+           end
+           
+           % If the rays are normal rays (not from infinity)
+           if(abs(obj.O.x) ~= inf)             
+                       
+              % Calculate the image distance
+               obj.di = Lens.lensFormulaToImageDistance(-obj.f, obj.do);
+               if (abs(obj.f - obj.do) < eps && obj.O.height == 0)
+                   % Calculate the image height 
+                   hi = tand(obj.O.infinityAngle) * obj.f;
+               else
+                   % Calculate the image height
+                   hi = Lens.imageDistanceToImageHeight(obj.do, obj.di, obj.O.height);
+               end
+              % Calculate the exact x-coordinate of the image
+               xi = obj.x + obj.di;
+
+           else
+               % There is no sound object distance
+               % The image distance is the focal point
+               obj.di = - obj.f;
+               % Image height depends on the infinityAngle
+               hi = tand(obj.O.infinityAngle)*obj.di;
+              % Calculate the exact x-coordinate of the image
+               xi = obj.x + obj.di;
+           end
+           
+           % Due to numerical precision infinity will not always be
+           % infinity, so every number larger than 1E9 will be set to
+           % infinity
+           if(abs(xi) > 1E9)
+               xi = sign(xi)*inf;
+           end
+
+           % Set the image object
+           obj.computedImage = LensImage(xi, hi, atand(obj.O.height/obj.f));
         end
         
        %========================================
@@ -155,16 +216,32 @@ classdef Lens < handle
            % Draw geometric optic rays
            
            % Calculate at which height the object ray hits the lens
-           if (obj.O.height ~= 0 && abs(obj.O.x) ~= inf && obj.do ~= obj.f*sign(obj.do))
-               
-               % Round of do-obj.f
-               do_objf = round(obj.do - obj.f*sign(obj.do), 8, 'decimals');
-               slope1 = -obj.O.height/(do_objf);
-               objectRayFocalPointHitLensHeight = obj.f*slope1*sign(obj.do);               
-           elseif (abs(obj.O.x) == inf || (obj.do == obj.f*sign(obj.do) && obj.O.height ~= 0))
-               objectRayFocalPointHitLensHeight = obj.O.height;
-           else
-               objectRayFocalPointHitLensHeight = obj.do*tand(obj.O.infinityAngle);
+           % Left to right orientation
+           if (obj.orientation == 1)
+               if (obj.O.height ~= 0 && abs(obj.O.x) ~= inf && obj.do ~= obj.f)
+
+                   % Round of do-obj.f
+                   do_objf = round(obj.do - obj.f, 8, 'decimals');
+                   slope1 = -obj.O.height/(do_objf);
+                   objectRayFocalPointHitLensHeight = obj.f*slope1;               
+               elseif (abs(obj.O.x) == inf || (obj.do == obj.f && obj.O.height ~= 0))
+                   objectRayFocalPointHitLensHeight = obj.O.height;
+               else
+                   objectRayFocalPointHitLensHeight = obj.do*tand(obj.O.infinityAngle);
+               end
+           % Right to left orientation
+           elseif (obj.orientation == 2)
+               if (obj.O.height ~= 0 && abs(obj.O.x) ~= inf && obj.do ~= -obj.f)
+
+                   % Round of do-obj.f
+                   do_objf = round(obj.do - obj.f*(-1), 8, 'decimals');
+                   slope1 = -obj.O.height/(do_objf);
+                   objectRayFocalPointHitLensHeight = obj.f*slope1*(-1);               
+               elseif (abs(obj.O.x) == inf || (obj.do == -obj.f && obj.O.height ~= 0))
+                   objectRayFocalPointHitLensHeight = obj.O.height;
+               else
+                   objectRayFocalPointHitLensHeight = obj.do*tand(obj.O.infinityAngle);
+               end
            end
            
            % Define how much you want to draw the infinity rays
