@@ -1,3 +1,12 @@
+%=========================================
+% (c) 2016 Zhi-Li Liu
+%
+% Z.Liu-4@student.tudelft.nl
+%
+% This can be used freely as long as this
+% credits text remains.
+%=========================================
+
 function [ FOURIERIMAGING ] = FourierPlaneFilter( image,  varargin)
 %FOURIERPLANEIMAGE Takes an image and fourier transforms it. Then after
 %applying the bounds to block off frequencies in the Fourier plane,
