@@ -6,23 +6,33 @@
 % This can be used freely as long as this
 % credits text remains.
 %=========================================
-
-function [ FOURIERIMAGING ] = FourierPlaneFilter( image,  varargin)
+%
 %FOURIERPLANEIMAGE Takes an image and fourier transforms it. Then after
 %applying the bounds to block off frequencies in the Fourier plane,
 %reconstruct the image.
 %
 % Available parameters
 % image - An image loaded using imgread
-% filter- Defines the type of filter 'highpass' or 'lowpass'
-% top   - How much from the top is being blocked (in percentage between 0 and 100)
-% bot   - How much from the bot is being blocked (in percentage between 0 and 100)
-% left  - How much from the left is being blocked (in percentage between 0 and 100)
-% right - How much from the right is being blocked (in percentage between 0 and 100)
 %
+% drawImage - Boolean. When false, no figure will be drawn.
+%
+% filter- Defines the type of filter 'highpass' or 'lowpass'
+%
+% top   - How much from the top is being blocked(lowpass)/let through
+% (highpass) [in percentage between 0 and 100]
+%
+% bot   - How much from the bot is being blocked(lowpass)/let through
+% (highpass)[in percentage between 0 and 100]
+%
+% left  - How much from the left is being blocked(lowpass)/let through
+% (highpass)[in percentage between 0 and 100]
+%
+% right - How much from the right is being blockedlowpasslow)/let through
+% (highpass) [in percentage between 0 and 100]
+%
+function [ FOURIERIMAGING ] = FourierPlaneFilter( image,  varargin)
 
 % Check the kind of image (monochrome or RGB)
-
 if (size(image,3) == 1)
     isRGB = 0;
 elseif (size(image,3) == 3)
