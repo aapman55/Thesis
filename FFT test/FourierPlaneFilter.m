@@ -141,7 +141,7 @@ function [MONOCHROME] = monochrome(im, Filter, Top, Bot, Left, Right, drawImage)
     if (drawImage)
         figure(1)
         subplot(1,4,1);
-        imshow(im)
+        imshow(uint8(im),[]);
         title('Original image');
     end
 
