@@ -86,7 +86,7 @@ for i=1:length(varargin)/2
                 
                 % Give warning when the input has changed
                 if (left ~= value)
-                    warning(['You input value for "top" was out of bounds and has been changed to: ',num2str(left)]);
+                    warning(['You input value for "left" was out of bounds and has been changed to: ',num2str(left)]);
                 end
             else
                 error('Please enter a correct number!');
@@ -99,7 +99,7 @@ for i=1:length(varargin)/2
                 
                 % Give warning when the input has changed
                 if (right ~= value)
-                    warning(['You input value for "top" was out of bounds and has been changed to: ',num2str(right)]);
+                    warning(['You input value for "right" was out of bounds and has been changed to: ',num2str(right)]);
                 end
             else
                 error('Please enter a correct number!');
