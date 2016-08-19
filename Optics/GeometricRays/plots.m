@@ -1,7 +1,7 @@
 % This script is to make the right plots to be used in
 % reports/presentations
 
-clear all; close all; clc;
+clear; close all; clc;
 
 % Used units are in mm
 
