@@ -158,8 +158,9 @@ classdef Lens < handle
        %========================================
         function handles = draw(obj, varargin)
             
+            stdColors = lines;
             % Default variable values
-            rayColor = 'magenta';
+            rayColor = stdColors(7,:);
             rayWidth = 1;
             
             % Read out optional input
