@@ -130,6 +130,9 @@ for i=1:length(varargin)/2
     end                
 end
 
+%load image
+image = imread(image);
+
 % Perform calculations and plots
 if(isRGB)
     [RED, GREEN, BLUE] = RGB(image, filter, top, bot, left, right, drawImage);
@@ -155,14 +158,6 @@ function [MONOCHROME] = monochrome(im, Filter, Top, Bot, Left, Right, drawImage)
     else
         lowPass = 0;
     end
-    
-    % Load image
-    if (drawImage)
-        figure(1)
-        subplot(1,4,1);
-        imshow(uint8(im),[]);
-        title('Original image');
-    end
 
     % Fourier transform
     f = fft2(double(im));
@@ -175,11 +170,6 @@ function [MONOCHROME] = monochrome(im, Filter, Top, Bot, Left, Right, drawImage)
 
     % Show Fourier image
     fourierImage = log(1+S);
-    if (drawImage)
-        subplot(1,4,2)
-        imshow(fourierImage,[]);
-        title('Fourier image');
-    end
 
     % Cut out part of frequency
     % Get the indices
@@ -219,22 +209,15 @@ function [MONOCHROME] = monochrome(im, Filter, Top, Bot, Left, Right, drawImage)
 
     % Show Fourier image
     blockedFourierImage = log(1+S);
-    if (drawImage)
-        subplot(1,4,3)
-        imshow(blockedFourierImage,[]);
-        title('Fourier image band passed');
-    end
 
     % Inverse fourier transform
     I = ifftshift(F);
     IF = ifft2(I);
-    
-    if (drawImage)
-        subplot(1,4,4)
-        imshow(abs(IF),[]);
-        title('Inverse Fourier image');
+       
+    if(drawImage)
+       plotPartialImage( uint8(im), fourierImage, blockedFourierImage, IF,'')
     end
-    
+
     MONOCHROME.fourierImage = fourierImage;
     MONOCHROME.blockedFourierImage = blockedFourierImage;
     MONOCHROME.IF = IF;
@@ -276,7 +259,7 @@ end
 
 function plotPartialImage(image, fourierImage, blockedFourierImage, IF, name)
     figure
-    set(gcf,'units','normalized','outerposition',[0 0 1 1]);
+    set(gcf,'units','normalized','outerposition',[0 0 1 1],'position',[0 0 1200 300]);
     
     subplot(1,4,1)
     imshow(image,[]);
@@ -285,11 +268,11 @@ function plotPartialImage(image, fourierImage, blockedFourierImage, IF, name)
     subplot(1,4,2)
     imshow(fourierImage,[]);
     title(['Fourier image ',name]);
-    
+
     subplot(1,4,3)
     imshow(blockedFourierImage,[]);
     title(['Fourier image ',name,' band pass']);
-    
+
     subplot(1,4,4)
     imshow(abs(IF),[]);
     title(['Inverse Fourier image ',name]);
