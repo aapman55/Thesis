@@ -259,7 +259,7 @@ end
 
 function plotPartialImage(image, fourierImage, blockedFourierImage, IF, name)
     figure
-    set(gcf,'units','normalized','outerposition',[0 0 1 1],'position',[0 0 1200 300]);
+    set(gcf,'units','normalized','outerposition',[0 0 .5 .25],'position',[0 0 1200 300]);
     
     subplot(1,4,1)
     imshow(image,[]);
