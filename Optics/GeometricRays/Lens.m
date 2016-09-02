@@ -57,6 +57,24 @@ classdef Lens < handle
            end
            obj.orientation = orientation;
        end
+       
+       %========================================
+       % Compute the Ingoing angle and the 
+       % outgoing angle
+       %========================================
+       function [in, out] = computeAngles(obj)
+           % First make sure that the image is calculated
+          if (obj.orientation == 1)
+              obj.computeImageLeftToRight();
+          else
+              error('Only left to right is currently supported');
+          end
+          
+          in = atand(0.5*obj.height/obj.do);
+          out = atand(0.5*obj.height/obj.di);          
+          
+       end
+       
         
        %========================================
        % Compute the image location

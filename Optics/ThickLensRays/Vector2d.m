@@ -1,0 +1,91 @@
+classdef Vector2d < handle
+    %Vector 2d A 3D vector
+    
+    properties
+        x;      % The x-coordinate
+        y;      % The y-coordinate
+        gl = Geom();
+    end
+    
+    methods
+        function obj = Vector2d(x, y)
+           obj.x = x;
+           obj.y = y;
+        end
+        
+        % Normalises the vector
+        function normalise(obj)
+           totalLength =  norm([obj.x, obj.y]);
+           obj.x = obj.x/totalLength;
+           obj.y = obj.y/totalLength;
+        end
+        
+        % Rotate a vector
+        function newVector = rotate(obj, deg)
+            [tempX,tempY, ~] = obj.gl.rotateZ(obj.x, obj.y, 0, deg);
+            newVector = Vector2d(tempX, tempY);
+        end
+        
+        % Creates a unit vector perpendicular to current one
+        function newVector = createUnitNormal(obj)
+            newVector = obj.rotate(90);
+            % normalise vector
+            newVector.normalise();
+        end
+        
+        % dot-product
+        function outcome = dot(obj, otherVector)
+            % Check whether otherVector' is an instance of the class Vector2d 
+           if(~isa(otherVector, 'Vector2d'))
+               error('Only Vector2d objects can be added together!');
+           end
+           
+           outcome = obj.x*otherVector.x + obj.y*otherVector.y;
+        end        
+        
+        % ==========================
+        % Operator overloading
+        % ==========================
+        
+        function newVector = plus(obj, otherVector)
+           % Check whether otherVector' is an instance of the class Vector2d 
+           if(~isa(otherVector, 'Vector2d'))
+               error('Only Vector2d objects can be added together!');
+           end
+           
+           % Create a new vector with the addition of the components of the
+           % vectors.
+           newVector = Vector2d(obj.x + otherVector.x, obj.y + otherVector.y);
+        end
+        
+        function newVector = minus(obj, otherVector)
+           % Check whether otherVector' is an instance of the class Vector2d 
+           if(~isa(otherVector, 'Vector2d'))
+               error('Only Vector2d objects can be added together!');
+           end
+           
+           % Create a new vector with the addition of the components of the
+           % vectors.
+           newVector = Vector2d(obj.x - otherVector.x, obj.y - otherVector.y);
+        end
+        
+        function newVector = uminus(obj)
+           newVector = Vector2d(-obj.x, -obj.y); 
+        end
+        
+        function newVector = mtimes(obj, obj2)
+            % Check if you are multiplying a number.
+           if(~(isa(obj2, 'double') || isa(obj, 'double')) || length(obj2) ~= 1)
+               error('A vector can only be multiplied with a number!');
+           end
+            
+           if (isa(obj2, 'double'))
+                newVector = Vector2d(obj2*obj.x, obj2*obj.y);
+           else
+                newVector = Vector2d(obj*obj2.x, obj*obj2.y);
+           end
+        end
+    end
+    
+end
+
