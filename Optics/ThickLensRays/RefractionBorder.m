@@ -110,6 +110,45 @@ classdef RefractionBorder < handle
            % Return intersection
            collisionPoint = Vector2d(Px,Py);
         end
+        
+        function refractedRay = refractRay(obj, lightRay)
+            % Checks if the lightRay is really a LightRay object
+            if (~isa(lightRay, 'LightRay'))
+                error('Your input must be a LightRay object!');
+            end    
+            
+            % Check collision point
+            collisionPoint = obj.hasCollision(lightRay);
+            
+            % If no collision is found, terminate!
+            if (isnan(collisionPoint.x) && isnan(collisionPoint.y))
+                refractedRay = collisionPoint;
+                return
+            end
+            
+            % Determine the orientation of the lightray with respect to the
+            % refraction border. The refraction border always has its
+            % normal pointing to n1, which is counterclock wise 90 degrees
+            % rotated from the direction beginpoint to endpoint.
+            orientation = sign(lightRay.direction.dot(obj.unitNormal));
+            
+            % If they are pointing in opposite direction, then the lightray
+            % is on the n1 side. 
+            if (orientation == -1)
+                nIncomingRay = obj.n1;
+                nRefractedRay = obj.n2;
+            else
+                nIncomingRay = obj.n2;
+                nRefractedRay = obj.n1;
+            end
+            
+            % Determine angle of incidence
+            angleOfIncidence = lightRay.direction.calculateAngle(obj.unitNormal*orientation);
+            
+            refractedAngle = asind(nIncomingRay/nRefractedRay*sind(angleOfIncidence));
+            
+            refractedRay = LightRay(collisionPoint, lightRay.direction.rotate(refractedAngle - angleOfIncidence));
+        end
     end
     
 end

@@ -14,10 +14,11 @@ classdef Vector2d < handle
         end
         
         % Normalises the vector
-        function normalise(obj)
+        function newVector =  normalise(obj)
            totalLength =  norm([obj.x, obj.y]);
-           obj.x = obj.x/totalLength;
-           obj.y = obj.y/totalLength;
+           tempX = obj.x/totalLength;
+           tempY = obj.y/totalLength;
+           newVector = Vector2d(tempX, tempY);
         end
         
         % Rotate a vector
@@ -30,7 +31,7 @@ classdef Vector2d < handle
         function newVector = createUnitNormal(obj)
             newVector = obj.rotate(90);
             % normalise vector
-            newVector.normalise();
+            newVector = newVector.normalise();
         end
         
         % dot-product
@@ -42,6 +43,20 @@ classdef Vector2d < handle
            
            outcome = obj.x*otherVector.x + obj.y*otherVector.y;
         end        
+        
+        % Compute the angle between 2 vectors
+        function angle = calculateAngle(obj, otherVector)
+           % Check whether otherVector' is an instance of the class Vector2d 
+           if(~isa(otherVector, 'Vector2d'))
+               error('Only Vector2d objects can be added together!');
+           end
+           
+            % Normalise vectors
+            v1 = obj.normalise();
+            v2 = otherVector.normalise();
+            
+            angle = acosd(v1.dot(v2));
+        end
         
         % ==========================
         % Operator overloading
