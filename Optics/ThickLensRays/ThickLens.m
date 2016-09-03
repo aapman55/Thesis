@@ -73,8 +73,8 @@ classdef ThickLens < handle
             obj.leftSegments = leftSegments;
             
             if (isinf(rightRadius))
-                leftSegments.x = (xlocation - 0.5*midSectionThickness) * ones(2,1);
-                leftSegments.y = [height/2, -height/2];
+                rightSegments.x = (xlocation + 0.5*midSectionThickness) * ones(2,1);
+                rightSegments.y = [height/2, -height/2];
             else
                 % Calculate the angle that matches the height
                 theta = asind(height/2/rightRadius);
