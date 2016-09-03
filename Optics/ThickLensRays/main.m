@@ -8,3 +8,5 @@ rb1 = RefractionBorder(Vector2d(0,-1), Vector2d(0,1), 1, 1.5);
 rb1.hasCollision(lr1)
 
 refracted = rb1.refractRay(lr1)
+
+ThickLens(100, 0, inf, 300, 5) 

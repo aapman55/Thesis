@@ -1,5 +1,15 @@
-classdef Vector2d < handle
-    %Vector 2d A 3D vector
+%=========================================
+% (c) 2016 Zhi-Li Liu
+%
+% Z.Liu-4@student.tudelft.nl
+%
+% This can be used freely as long as this
+% credits text remains.
+%=========================================
+%
+% Vector2d - A 2d vector with lot of functions typical for vectors
+%
+classdef Vector2d < handle  
     
     properties
         x;      % The x-coordinate
