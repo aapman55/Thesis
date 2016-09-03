@@ -65,6 +65,10 @@ classdef RefractionBorder < handle
             plot([obj.beginpoint.x, obj.endpoint.x],[obj.beginpoint.y, obj.endpoint.y] )
         end
         
+        function drawMono(obj, color)
+            plot([obj.beginpoint.x, obj.endpoint.x],[obj.beginpoint.y, obj.endpoint.y] , 'color',color)
+        end
+        
         % function to check if a lightray hits this refractionBorder
         function collisionPoint = hasCollision(obj, lightRay)
             % Checks if the lightRay is really a LightRay object
@@ -122,7 +126,7 @@ classdef RefractionBorder < handle
             
             % If no collision is found, terminate!
             if (isnan(collisionPoint.x) && isnan(collisionPoint.y))
-                refractedRay = collisionPoint;
+                refractedRay = nan;
                 return
             end
             

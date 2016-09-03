@@ -24,7 +24,7 @@ classdef LightRay < handle
             end
             
            obj.beginpoint = beginpoint;
-           obj.direction = direction;
+           obj.direction = direction.normalise();
         end
     end
     
