@@ -63,6 +63,9 @@ classdef RefractionBorder < handle
         % Draw the border
         function draw(obj)
             plot([obj.beginpoint.x, obj.endpoint.x],[obj.beginpoint.y, obj.endpoint.y] )
+            hold on
+            plot([(obj.beginpoint.x + obj.endpoint.x)/2, (obj.beginpoint.x + obj.endpoint.x)/2 + obj.unitNormal.x],...
+                    [(obj.beginpoint.y + obj.endpoint.y)/2, (obj.beginpoint.y + obj.endpoint.y)/2 + obj.unitNormal.y])
         end
         
         function drawMono(obj, color)
@@ -100,6 +103,10 @@ classdef RefractionBorder < handle
            Px = ((x1*y2-y1*x2)*(x3-x4)-(x1-x2)*(x3*y4-y3*x4))/((x1-x2)*(y3-y4)-(y1-y2)*(x3-x4));
            Py = ((x1*y2-y1*x2)*(y3-y4)-(y1-y2)*(x3*y4-y3*x4))/((x1-x2)*(y3-y4)-(y1-y2)*(x3-x4));
            
+           % Round off Px and Py
+           Px = round(Px, 10, 'significant');
+           Py = round(Py, 10, 'significant');
+           
            % Determine whether the intersection is on the refraction border
            if ((Px < obj.beginpoint.x && Px < obj.endpoint.x) || (Px > obj.beginpoint.x && Px > obj.endpoint.x))
                collisionPoint = Vector2d(nan,nan);
@@ -136,22 +143,20 @@ classdef RefractionBorder < handle
             % rotated from the direction beginpoint to endpoint.
             orientation = sign(lightRay.direction.dot(obj.unitNormal));
             
-            % If they are pointing in opposite direction, then the lightray
-            % is on the n1 side. 
-            if (orientation == -1)
-                nIncomingRay = obj.n1;
-                nRefractedRay = obj.n2;
-            else
-                nIncomingRay = obj.n2;
-                nRefractedRay = obj.n1;
-            end
+            nIncomingRay = obj.n1;
+            nRefractedRay = obj.n2;
+            
+            % Determine the orientation of the refraction border in
+            % y-direction
+            RBorientation = sign(obj.unitNormal.y);
+
             
             % Determine angle of incidence
             angleOfIncidence = lightRay.direction.calculateAngle(obj.unitNormal*orientation);
             
             refractedAngle = asind(nIncomingRay/nRefractedRay*sind(angleOfIncidence));
             
-            refractedRay = LightRay(collisionPoint, lightRay.direction.rotate(refractedAngle - angleOfIncidence));
+            refractedRay = LightRay(collisionPoint, lightRay.direction.rotate((refractedAngle - angleOfIncidence)*RBorientation));
         end
     end
     

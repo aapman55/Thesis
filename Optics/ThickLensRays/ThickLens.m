@@ -35,7 +35,7 @@ classdef ThickLens < handle
     
     methods
         function obj = ThickLens(height, xlocation, leftRadius, rightRadius, midSectionThickness)
-            amountOfPiecesPerCurve = 50;
+            amountOfPiecesPerCurve = 51;
             
             obj.totalRays = struct('x',[],'y',[]);
             % Save input data
