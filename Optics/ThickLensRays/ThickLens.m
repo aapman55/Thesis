@@ -80,7 +80,7 @@ classdef ThickLens < handle
                 theta = asind(height/2/rightRadius);
                 
                 % Use this theta to build up a lens containing amountOfPiecesPerCurve pieces
-                THETA = linspace(-theta, theta, amountOfPiecesPerCurve);
+                THETA = linspace(theta, -theta, amountOfPiecesPerCurve);
                 rightSegments.x =  rightRadius.*cosd(THETA);
                 rightSegments.y = rightRadius.*sind(THETA);
                 
