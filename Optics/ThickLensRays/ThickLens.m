@@ -52,7 +52,7 @@ classdef ThickLens < handle
             % caught by making a straight line.
             if (isinf(leftRadius))
                 leftSegments.x = (xlocation - 0.5*midSectionThickness) * ones(2,1);
-                leftSegments.y = [height/2, -height/2];
+                leftSegments.y = [-height/2, height/2];
             else
                 % Calculate the angle that matches the height
                 theta = asind(height/2/leftRadius);
@@ -108,8 +108,8 @@ classdef ThickLens < handle
             for i = 1:length(rightSegments.x)-1
                obj.rightRefractionBorders(i) = RefractionBorder( Vector2d(rightSegments.x(i), rightSegments.y(i)),...
                                                                 Vector2d(rightSegments.x(i+1), rightSegments.y(i+1)),...
-                                                                obj.nLens,...
-                                                                obj.nMedium);
+                                                                obj.nMedium,...
+                                                                obj.nLens);
             end
             
             obj.midSectionRefractionBorders(1) = RefractionBorder( Vector2d(xlocation-midSectionThickness/2, height/2),...

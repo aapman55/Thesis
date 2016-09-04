@@ -25,13 +25,13 @@ end
 tl1.drawRays();
 
 %%
-tl1 = ThickLens(100, 0, 70, inf, 5);
+tl1 = ThickLens(100, 0, inf, 70, 5);
 
 % tl1.showRefractionBorders();
 direction = Vector2d(1, 0);
 
-for i=-20:5:20
-    lr1 = LightRay(Vector2d(-50,0), direction.rotate(i));
+for i=-10:10
+    lr1 = LightRay(Vector2d(-200,0), direction.rotate(i));
     tl1.addLightRay(lr1);
 end
 

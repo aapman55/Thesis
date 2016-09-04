@@ -159,12 +159,14 @@ classdef RefractionBorder < handle
                 RBorientation = sign(-lightRay.direction.y);
             end
             
+            refractionRatios = sign(nRefractedRay-nIncomingRay);
+            
             % Determine angle of incidence
             angleOfIncidence = lightRay.direction.calculateAngle(obj.unitNormal*orientation);
             
             refractedAngle = asind(nIncomingRay/nRefractedRay*sind(angleOfIncidence));
             
-            refractedRay = LightRay(collisionPoint, lightRay.direction.rotate((refractedAngle - angleOfIncidence)*RBorientation));
+            refractedRay = LightRay(collisionPoint, lightRay.direction.rotate((refractedAngle - angleOfIncidence)*RBorientation*refractionRatios));
         end
     end
     
