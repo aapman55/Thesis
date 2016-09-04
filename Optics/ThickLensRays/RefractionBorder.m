@@ -143,13 +143,21 @@ classdef RefractionBorder < handle
             % rotated from the direction beginpoint to endpoint.
             orientation = sign(lightRay.direction.dot(obj.unitNormal));
             
-            nIncomingRay = obj.n1;
-            nRefractedRay = obj.n2;
+            if (orientation == -1)
+                nIncomingRay = obj.n1;
+               nRefractedRay = obj.n2;
+            else
+                nIncomingRay = obj.n2;
+                nRefractedRay = obj.n1;
+            end
             
             % Determine the orientation of the refraction border in
             % y-direction
             RBorientation = sign(obj.unitNormal.y);
-
+            
+            if(RBorientation == 0)
+                RBorientation = sign(-lightRay.direction.y);
+            end
             
             % Determine angle of incidence
             angleOfIncidence = lightRay.direction.calculateAngle(obj.unitNormal*orientation);
