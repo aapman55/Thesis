@@ -32,6 +32,7 @@ classdef RefractionBorder < handle
         unitNormal;     % This is a vector 2d object, calculated while initialising. It represents the unit normal of the border.
         n1;             % The index of refraction at the left side of the border
         n2;             % The index of refraction at the right side of the border
+        xAxisAngle;     % The angle between the normal vector and the horizontal x-axis
     end
     
     methods
@@ -58,6 +59,10 @@ classdef RefractionBorder < handle
            % Now calculate the unit normal
            tempVector = endpoint - beginpoint;
            obj.unitNormal = tempVector.createUnitNormal();
+           
+           % Now using this unit normal determine the angle with the
+           % horizontal x-axis
+           obj.xAxisAngle = obj.unitNormal.calculateAngle(Vector2d(obj.unitNormal.x, 0));
         end
         
         % Draw the border
@@ -153,20 +158,18 @@ classdef RefractionBorder < handle
             
             % Determine the orientation of the refraction border in
             % y-direction
-            RBorientation = sign(obj.unitNormal.y);
             
-            if(RBorientation == 0)
-                RBorientation = sign(-lightRay.direction.y);
-            end
+            tempVector = lightRay.direction - obj.unitNormal*orientation;
+
+            RBorientation = sign(tempVector.y);
             
-            refractionRatios = sign(nRefractedRay-nIncomingRay);
             
             % Determine angle of incidence
             angleOfIncidence = lightRay.direction.calculateAngle(obj.unitNormal*orientation);
             
             refractedAngle = asind(nIncomingRay/nRefractedRay*sind(angleOfIncidence));
             
-            refractedRay = LightRay(collisionPoint, lightRay.direction.rotate((refractedAngle - angleOfIncidence)*RBorientation*refractionRatios));
+            refractedRay = LightRay(collisionPoint, lightRay.direction.rotate((refractedAngle - angleOfIncidence)*RBorientation));
         end
     end
     
