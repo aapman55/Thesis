@@ -8,17 +8,20 @@ amountOfColors = 1000;
 amountOfElementsInHeight = amountOfColors;
 
 % Dictates the percentage of the center part blocked by the filter [50]
-percentageBlocked = 50; 
+percentageBlocked = 0; 
 
 % Specify the portion you select from the generated spectrum (in
 % percentage) [45,70]
 beginSpectrum = 40;
-endSpectrum = 48;
+endSpectrum = 65;
 
 % Specify the speed of the diffraction grating (not in real /mm but just a
 % number) [3]
 speedGrating = 2;
 
+% Dictate the plot width
+plotWidth = 400;
+plotHeight = 800;
 %% Initialisation
 % Get colors
 colors = hsv(amountOfColors)';
@@ -35,7 +38,10 @@ base(:,:,3) = repmat(colors(3,:),amountOfElementsInHeight,1);
 truncatedColors = base(:,floor(beginSpectrum/100*amountOfColors):floor(endSpectrum*amountOfColors/100),:);
 
 %Show image
+figure('position',[0 0 plotWidth plotHeight]);
+hold on;
 image(truncatedColors)
+axis off
 
 % Block part of the spectrum
 blockedElements = floor(size(truncatedColors,1)*percentageBlocked/100);
@@ -63,8 +69,9 @@ for i=0:size(truncatedColors, 2)-1
     bigMatrix(firstIndex:lastIndex,i+1,:) = truncatedColors(:,i+1,:);
 end
 
-figure()
+figure('position',[0 0 plotWidth plotHeight]);
 image(bigMatrix)
+axis off;
 
 % squeeze them to one color
 squeezed = sum(bigMatrix,2)/size(bigMatrix,2);
@@ -76,5 +83,6 @@ factor = 1/(maximumBrightness-minimumBrightness);
 
 squeezedCorrected = squeezed*factor;
 
-figure();
+figure('position',[0 0 plotWidth plotHeight]);
 image(squeezedCorrected);
+axis off;
