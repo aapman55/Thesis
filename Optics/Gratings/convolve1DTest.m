@@ -13,14 +13,11 @@ percentageBlocked = 50;
 % Specify the portion you select from the generated spectrum (in
 % percentage) [45,70]
 beginSpectrum = 40;
-endSpectrum = 70;
+endSpectrum = 48;
 
 % Specify the speed of the diffraction grating (not in real /mm but just a
 % number) [3]
 speedGrating = 2;
-
-% Magnifying factor to put more brightness in the image; [2]
-brightnessFactor = 1;
 
 %% Initialisation
 % Get colors
@@ -69,11 +66,15 @@ end
 figure()
 image(bigMatrix)
 
-minimumBrightness = min(min(min(bigMatrix)));
-maximumBrightness = max(max(max(bigMatrix)));
-factor = 1/(maximumBrightness-minimumBrightness)*3;
-
 % squeeze them to one color
-squeezed = brightnessFactor*factor*sum(bigMatrix,2)/size(bigMatrix,2);
+squeezed = sum(bigMatrix,2)/size(bigMatrix,2);
+
+minimumBrightness = min(min(squeezed));
+maximumBrightness = max(max(squeezed));
+
+factor = 1/(maximumBrightness-minimumBrightness);
+
+squeezedCorrected = squeezed*factor;
+
 figure();
-image(squeezed);
+image(squeezedCorrected);
