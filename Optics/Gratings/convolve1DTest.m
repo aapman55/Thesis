@@ -8,7 +8,7 @@ amountOfColors = 1000;
 amountOfElementsInHeight = amountOfColors;
 
 % Dictates the percentage of the center part blocked by the filter [50]
-percentageBlocked = 0; 
+percentageBlocked = 50; 
 
 % Specify the portion you select from the generated spectrum (in
 % percentage) [45,70]
