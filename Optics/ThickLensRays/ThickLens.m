@@ -186,7 +186,7 @@ classdef ThickLens < handle
                 
                 % Calculate the last point
 
-                lastpoint = secondRay.beginpoint + 2*obj.height*secondRay.direction;
+                lastpoint = secondRay.beginpoint + 2.5*obj.height*secondRay.direction;
 
                 
                 % Add to totalRays
@@ -248,6 +248,10 @@ classdef ThickLens < handle
            for i=1:size(obj.totalRays.x,1)
                 plot(obj.totalRays.x(i,:), obj.totalRays.y(i,:), 'color', lines(1))
            end
+        end
+        
+        function maxThickness = maxThickness(obj)
+            maxThickness = max(obj.rightSegments.x) -  min(obj.leftSegments.x);
         end
     end
     
