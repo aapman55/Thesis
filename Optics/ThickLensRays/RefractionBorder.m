@@ -108,21 +108,27 @@ classdef RefractionBorder < handle
            Px = ((x1*y2-y1*x2)*(x3-x4)-(x1-x2)*(x3*y4-y3*x4))/((x1-x2)*(y3-y4)-(y1-y2)*(x3-x4));
            Py = ((x1*y2-y1*x2)*(y3-y4)-(y1-y2)*(x3*y4-y3*x4))/((x1-x2)*(y3-y4)-(y1-y2)*(x3-x4));
            
-           % Round off Px and Py
-           Px = round(Px, 10, 'significant');
-           Py = round(Py, 10, 'significant');
-           
+           % Set a small number
+           small = 10E-10;
            % Determine whether the intersection is on the refraction border
            if ((Px < obj.beginpoint.x && Px < obj.endpoint.x) || (Px > obj.beginpoint.x && Px > obj.endpoint.x))
-               collisionPoint = Vector2d(nan,nan);
-               return
+               if (abs(Px - obj.beginpoint.x )< small || abs(Px - obj.endpoint.x) < small)
+                   % Do nothing
+               else
+                   collisionPoint = Vector2d(nan,nan);               
+                   return
+               end
            end
            
            if ((Py < obj.beginpoint.y && Py < obj.endpoint.y) || (Py > obj.beginpoint.y && Py > obj.endpoint.y))
-               collisionPoint = Vector2d(nan,nan);
-               return
+               if (abs(Py - obj.beginpoint.y )< small || abs(Py - obj.endpoint.y) < small)
+                   % Do nothing
+               else
+                   collisionPoint = Vector2d(nan,nan);               
+                   return
+               end
            end
-           
+         
            % Return intersection
            collisionPoint = Vector2d(Px,Py);
         end

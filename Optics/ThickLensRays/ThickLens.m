@@ -35,7 +35,7 @@ classdef ThickLens < handle
     
     methods
         function obj = ThickLens(height, xlocation, leftRadius, rightRadius, midSectionThickness)
-            amountOfPiecesPerCurve = 51;
+            amountOfPiecesPerCurve = 500;
             
             obj.totalRays = struct('x',[],'y',[]);
             % Save input data
@@ -162,9 +162,10 @@ classdef ThickLens < handle
                    break;                   
                 end
                 % If there is no collision point found isnan(firstRay).
-                % Then give error.
+                % Then give warning and exit without adding ray.
                 if(~isa(firstRay, 'LightRay'))
-                    error('No intersection of lightRay with Lens!');
+                    warning('No intersection of lightRay with Lens!');  
+                    return
                 end
                 
                 % Continue with the right curved surface
@@ -176,8 +177,17 @@ classdef ThickLens < handle
                    break;                   
                 end
                 
+                % If there is no collision point found isnan(secondRay).
+                % Then give warning and exit without adding ray.
+                if(~isa(secondRay, 'LightRay'))
+                    warning('No intersection of lightRay with Lens!');  
+                    return
+                end
+                
                 % Calculate the last point
+
                 lastpoint = secondRay.beginpoint + 2*obj.height*secondRay.direction;
+
                 
                 % Add to totalRays
                 obj.totalRays.x = [obj.totalRays.x; lightRay.beginpoint.x,...
