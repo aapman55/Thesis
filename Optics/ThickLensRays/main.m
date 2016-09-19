@@ -61,3 +61,15 @@ for i=-40:2:10
 end
 
 tl1.drawRays();
+
+%% Reversed direction
+tl1 = ThickLens(50, 5, 50, inf, 3);
+
+% tl1.showRefractionBorders();
+
+for i=-12:2:12
+    lr1 = LightRay(Vector2d(100,i), Vector2d(-1, 0));
+    tl1.addLightRay(lr1);
+end
+
+tl1.drawRays();

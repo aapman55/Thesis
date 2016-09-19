@@ -153,55 +153,67 @@ classdef ThickLens < handle
             
             % Case when the lightray is on the left
             if (lightRay.beginpoint.x < minX)
-                % First refract with the left curvature
-                for i=1:length(obj.leftRefractionBorders)
-                   firstRay = obj.leftRefractionBorders(i).refractRay(lightRay);
-                   if (~isa(firstRay, 'LightRay'))
-                       continue;
-                   end
-                   break;                   
-                end
-                % If there is no collision point found isnan(firstRay).
-                % Then give warning and exit without adding ray.
-                if(~isa(firstRay, 'LightRay'))
-                    warning('No intersection of lightRay with Lens!');  
-                    return
-                end
-                
-                % Continue with the right curved surface
-                for i=1:length(obj.rightRefractionBorders)
-                   secondRay = obj.rightRefractionBorders(i).refractRay(firstRay);
-                   if (~isa(secondRay, 'LightRay'))
-                       continue;
-                   end
-                   break;                   
-                end
-                
-                % If there is no collision point found isnan(secondRay).
-                % Then give warning and exit without adding ray.
-                if(~isa(secondRay, 'LightRay'))
-                    warning('No intersection of lightRay with Lens!');  
-                    return
-                end
-                
-                % Calculate the last point
-
-                lastpoint = secondRay.beginpoint + 2.5*obj.height*secondRay.direction;
-
-                
-                % Add to totalRays
-                obj.totalRays.x = [obj.totalRays.x; lightRay.beginpoint.x,...
-                                                    firstRay.beginpoint.x,...
-                                                    secondRay.beginpoint.x,...
-                                                    lastpoint.x];
-                                                
-                obj.totalRays.y = [obj.totalRays.y; lightRay.beginpoint.y,...
-                                                    firstRay.beginpoint.y,...
-                                                    secondRay.beginpoint.y,...
-                                                    lastpoint.y];
+                % Refraction border encountered first
+                firstRFBorders = obj.leftRefractionBorders;
+                % Refraction border encountered second
+                secondRFBorders = obj.rightRefractionBorders;
+            % Case when the lightray is on the right
+            else
+                % Refraction border encountered first
+                firstRFBorders = obj.rightRefractionBorders;
+                % Refraction border encountered second
+                secondRFBorders = obj.leftRefractionBorders;
             end
-        end
-        
+            
+            % First refract with the first encountered curvature
+            for i=1:length(firstRFBorders)
+               firstRay = firstRFBorders(i).refractRay(lightRay);
+               if (~isa(firstRay, 'LightRay'))
+                   continue;
+               end
+               break;                   
+            end
+            % If there is no collision point found isnan(firstRay).
+            % Then give warning and exit without adding ray.
+            if(~isa(firstRay, 'LightRay'))
+                warning('No intersection of lightRay with Lens!');  
+                return
+            end
+
+            % Continue with the second encounterd curved surface
+            for i=1:length(secondRFBorders)
+               secondRay = secondRFBorders(i).refractRay(firstRay);
+               if (~isa(secondRay, 'LightRay'))
+                   continue;
+               end
+               break;                   
+            end
+
+            % If there is no collision point found isnan(secondRay).
+            % Then give warning and exit without adding ray.
+            if(~isa(secondRay, 'LightRay'))
+                warning('No intersection of lightRay with Lens!');  
+                return
+            end
+
+            % Calculate the last point
+
+            lastpoint = secondRay.beginpoint + 2.5*obj.height*secondRay.direction;
+
+
+            % Add to totalRays
+            obj.totalRays.x = [obj.totalRays.x; lightRay.beginpoint.x,...
+                                                firstRay.beginpoint.x,...
+                                                secondRay.beginpoint.x,...
+                                                lastpoint.x];
+
+            obj.totalRays.y = [obj.totalRays.y; lightRay.beginpoint.y,...
+                                                firstRay.beginpoint.y,...
+                                                secondRay.beginpoint.y,...
+                                                lastpoint.y];
+          
+        end        
+                
         %Plots the refraction Borders using different Colors (At least
         %since matlab 2014)
         function h = showRefractionBorders(obj)
@@ -242,6 +254,8 @@ classdef ThickLens < handle
             axis image;
         end
         
+        % Draw all the light rays in obj.totalRays. These light rays have
+        % been added with the function addLightRay.
         function h = drawRays(obj)
            h = obj.draw();
            
@@ -250,9 +264,15 @@ classdef ThickLens < handle
            end
         end
         
+        % Calculates the maximum thickness of the lens
         function maxThickness = maxThickness(obj)
             maxThickness = max(obj.rightSegments.x) -  min(obj.leftSegments.x);
         end
+    end
+    
+    % private helper methods
+    methods(Access = private)
+        
     end
     
 end

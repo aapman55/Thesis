@@ -167,7 +167,7 @@ classdef RefractionBorder < handle
             
             tempVector = lightRay.direction - obj.unitNormal*orientation;
 
-            RBorientation = sign(tempVector.y);
+            RBorientation = sign(tempVector.y)*sign(lightRay.direction.x);
             
             
             % Determine angle of incidence
