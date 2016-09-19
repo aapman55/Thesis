@@ -73,3 +73,41 @@ for i=-12:2:12
 end
 
 tl1.drawRays();
+
+%% 4f system
+
+tl1 = ThickLens(50, 5, 50, inf, 3);
+tl2 = ThickLens(50, -195, inf, 50, 3);
+
+% tl1.showRefractionBorders();
+
+for i=-24:2:24
+    lr1 = LightRay(Vector2d(100,i), Vector2d(-1, 0));
+    tl1.addLightRay(lr1);
+end
+
+for i=1:length(tl1.outGoingRayList)
+    tl2.addLightRay(tl1.outGoingRayList(i));
+end
+
+tl1.drawRays(true);
+tl2.drawRays(false);
+
+%% 4f system
+
+tl1 = ThickLens(50, 5, inf, 50, 3);
+tl2 = ThickLens(50, -195, 50, inf, 3);
+
+% tl1.showRefractionBorders();
+
+for i=-24:2:24
+    lr1 = LightRay(Vector2d(100,i), Vector2d(-1, 0));
+    tl1.addLightRay(lr1);
+end
+
+for i=1:length(tl1.outGoingRayList)
+    tl2.addLightRay(tl1.outGoingRayList(i));
+end
+
+tl1.drawRays(true);
+tl2.drawRays(false);

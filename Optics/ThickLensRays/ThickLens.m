@@ -29,6 +29,7 @@ classdef ThickLens < handle
         midSectionRefractionBorders;
         
         lightRayList = [];      % Initialise an empty array with lightRay objects
+        outGoingRayList = [];   % Initialise an empty array with lightRay objects for rays leaving the lens
         totalRays;              % This array contains the calculated arrays
         
     end
@@ -211,7 +212,9 @@ classdef ThickLens < handle
                                                 firstRay.beginpoint.y,...
                                                 secondRay.beginpoint.y,...
                                                 lastpoint.y];
-          
+                                            
+            % Add secondRay to the list of outgoing lightRays
+            obj.outGoingRayList = [obj.outGoingRayList ; secondRay];
         end        
                 
         %Plots the refraction Borders using different Colors (At least
@@ -234,11 +237,17 @@ classdef ThickLens < handle
         end
         
         % Draw the lens using the standard blue color
-        function h = draw(obj)
+        function h = draw(obj, createFig)
             % Standard blue color
             StdBlue = lines(1);
             
-            h = figure();
+            % If a new figure is requested
+            if(exist('createFig','var') && createFig)
+                h = figure();
+            else
+                h = 0;
+            end
+            
             hold on            
             for i = 1:length( obj.leftRefractionBorders)
                 obj.leftRefractionBorders(i).drawMono(StdBlue); 
@@ -256,8 +265,15 @@ classdef ThickLens < handle
         
         % Draw all the light rays in obj.totalRays. These light rays have
         % been added with the function addLightRay.
-        function h = drawRays(obj)
-           h = obj.draw();
+        function h = drawRays(obj, createFig)
+            % If a new figure is requested
+            if(exist('createFig','var') && createFig)
+                h = obj.draw(createFig);
+            else
+                h = 0;
+                obj.draw();
+            end
+           
            
            for i=1:size(obj.totalRays.x,1)
                 plot(obj.totalRays.x(i,:), obj.totalRays.y(i,:), 'color', lines(1))
