@@ -3,6 +3,7 @@ clear; close all; clc;
 %%
 
 tl1 = ThickLens(50, inf, 50, 3);
+tl1.rotate(0);
 tl1.translateY(50)
 tl1.translateX(-4)
 % tl1.showRefractionBorders();

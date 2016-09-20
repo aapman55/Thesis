@@ -51,7 +51,7 @@ classdef ThickLens < handle
             % caught by making a straight line.
             if (isinf(leftRadius))
                 leftSegments.x = ( - 0.5*midSectionThickness) * ones(2,1);
-                leftSegments.y = [-height/2, height/2];
+                leftSegments.y = [-height/2; height/2];
             else
                 % Calculate the angle that matches the height
                 theta = asind(height/2/leftRadius);
@@ -115,6 +115,23 @@ classdef ThickLens < handle
            % Update the right segments
            obj.rightSegments.y = obj.rightSegments.y + amount;
            
+           % Recompute geometry
+           obj.createRefractionBorders();
+        end
+        
+        function rotate(obj, deg)
+            % update the left segments  
+            x = obj.leftSegments.x;
+            y = obj.leftSegments.y;
+            obj.leftSegments.x = cosd(deg).*x - sind(deg).*y;
+            obj.leftSegments.y = sind(deg).*x + cosd(deg).*y;
+            
+            % update the right segments
+            x = obj.rightSegments.x;
+            y = obj.rightSegments.y;
+            obj.rightSegments.x = cosd(deg).*x - sind(deg).*y;
+            obj.rightSegments.y = sind(deg).*x + cosd(deg).*y;
+            
            % Recompute geometry
            obj.createRefractionBorders();
         end
