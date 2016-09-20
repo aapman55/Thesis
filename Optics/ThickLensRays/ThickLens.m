@@ -94,34 +94,20 @@ classdef ThickLens < handle
             
             obj.rightSegments = rightSegments;
             
-            % Create the RefractionBorders
-            obj.leftRefractionBorders = RefractionBorder.empty(length(leftSegments.x)-1,0);
-            obj.rightRefractionBorders = RefractionBorder.empty(length(rightSegments.x)-1,0);
-            obj.midSectionRefractionBorders = RefractionBorder.empty(2,0);
+            % Create the refraction borders
+            obj.createRefractionBorders();            
             
-            for i = 1:length(leftSegments.x)-1
-               obj.leftRefractionBorders(i) = RefractionBorder( Vector2d(leftSegments.x(i), leftSegments.y(i)),...
-                                                                Vector2d(leftSegments.x(i+1), leftSegments.y(i+1)),...
-                                                                obj.nMedium,...
-                                                                obj.nLens);
-            end
-            
-            for i = 1:length(rightSegments.x)-1
-               obj.rightRefractionBorders(i) = RefractionBorder( Vector2d(rightSegments.x(i), rightSegments.y(i)),...
-                                                                Vector2d(rightSegments.x(i+1), rightSegments.y(i+1)),...
-                                                                obj.nMedium,...
-                                                                obj.nLens);
-            end
-            
-            obj.midSectionRefractionBorders(1) = RefractionBorder( Vector2d(xlocation-midSectionThickness/2, height/2),...
-                                                                Vector2d(xlocation+midSectionThickness/2, height/2),...
-                                                                obj.nMedium,...
-                                                                obj.nLens);
-                                                            
-            obj.midSectionRefractionBorders(2) = RefractionBorder( Vector2d(xlocation-midSectionThickness/2, -height/2),...
-                                                                    Vector2d(xlocation+midSectionThickness/2, -height/2),...
-                                                                    obj.nLens,...
-                                                                    obj.nMedium);            
+        end
+        
+        function translateY(obj, amount)
+           % update the left segments
+           obj.leftSegments.y = obj.leftSegments.y + amount;
+           
+           % Update the right segments
+           obj.rightSegments.y = obj.rightSegments.y + amount;
+           
+           % Recompute geometry
+           obj.createRefractionBorders();
         end
         
         function setMedium(obj, nMedium)
@@ -137,10 +123,36 @@ classdef ThickLens < handle
             if (~isa(lightRay, 'LightRay'))
                 error('Your input must be a LightRay object!');
             end
+           
+            % Compute the ray trajectory
+            try
+                [refractedRay, rayTrajectory] = obj.computeLightRay(lightRay);
+            catch e
+               warning(e.message); 
+               return; 
+            end
             
             % This is just for convenience purposes. The lightray will be
             % calculated and stored anyways.
             obj.lightRayList = [obj.lightRayList, lightRay];
+            
+            % Add to totalRays
+            obj.totalRays.x = [obj.totalRays.x; rayTrajectory.x];
+
+            obj.totalRays.y = [obj.totalRays.y; rayTrajectory.y];
+                                            
+            % Add secondRay to the list of outgoing lightRays
+            obj.outGoingRayList = [obj.outGoingRayList ; refractedRay];
+        end        
+        
+        % This function computes the trajectory of the lightray. As output
+        % it has the final refracted lightray and also the complete
+        % trajectory from beginpoint to somewhere behind the lens.
+        function [refractedRay, rayTrajectory] = computeLightRay(obj, lightRay)
+            % Checks if the lightRay is really a LightRay object
+            if (~isa(lightRay, 'LightRay'))
+                error('Your input must be a LightRay object!');
+            end
             
             % Determine which side of the lens your light ray is from
             minX = min(obj.leftSegments.x);
@@ -177,8 +189,7 @@ classdef ThickLens < handle
             % If there is no collision point found isnan(firstRay).
             % Then give warning and exit without adding ray.
             if(~isa(firstRay, 'LightRay'))
-                warning('No intersection of lightRay with Lens!');  
-                return
+                error('No intersection of lightRay with Lens!');                 
             end
 
             % Continue with the second encounterd curved surface
@@ -193,8 +204,7 @@ classdef ThickLens < handle
             % If there is no collision point found isnan(secondRay).
             % Then give warning and exit without adding ray.
             if(~isa(secondRay, 'LightRay'))
-                warning('No intersection of lightRay with Lens!');  
-                return
+                error('No intersection of lightRay with Lens!');                  
             end
 
             % Calculate the last point
@@ -203,19 +213,20 @@ classdef ThickLens < handle
 
 
             % Add to totalRays
-            obj.totalRays.x = [obj.totalRays.x; lightRay.beginpoint.x,...
-                                                firstRay.beginpoint.x,...
-                                                secondRay.beginpoint.x,...
-                                                lastpoint.x];
+            rayTrajectory.x = [lightRay.beginpoint.x,...
+                               firstRay.beginpoint.x,...
+                               secondRay.beginpoint.x,...
+                               lastpoint.x];
 
-            obj.totalRays.y = [obj.totalRays.y; lightRay.beginpoint.y,...
-                                                firstRay.beginpoint.y,...
-                                                secondRay.beginpoint.y,...
-                                                lastpoint.y];
-                                            
-            % Add secondRay to the list of outgoing lightRays
-            obj.outGoingRayList = [obj.outGoingRayList ; secondRay];
-        end        
+            rayTrajectory.y = [lightRay.beginpoint.y,...
+                               firstRay.beginpoint.y,...
+                               secondRay.beginpoint.y,...
+                               lastpoint.y];            
+                           
+           % Assign value of secondRay to refractedRAy
+           refractedRay = secondRay;
+        end
+        
                 
         %Plots the refraction Borders using different Colors (At least
         %since matlab 2014)
@@ -288,7 +299,36 @@ classdef ThickLens < handle
     
     % private helper methods
     methods(Access = private)
-        
+        function createRefractionBorders(obj)
+            % Create the RefractionBorders
+            obj.leftRefractionBorders = RefractionBorder.empty(length(obj.leftSegments.x)-1,0);
+            obj.rightRefractionBorders = RefractionBorder.empty(length(obj.rightSegments.x)-1,0);
+            obj.midSectionRefractionBorders = RefractionBorder.empty(2,0);
+            
+            for i = 1:length(obj.leftSegments.x)-1
+               obj.leftRefractionBorders(i) = RefractionBorder( Vector2d(obj.leftSegments.x(i), obj.leftSegments.y(i)),...
+                                                                Vector2d(obj.leftSegments.x(i+1), obj.leftSegments.y(i+1)),...
+                                                                obj.nMedium,...
+                                                                obj.nLens);
+            end
+            
+            for i = 1:length(obj.rightSegments.x)-1
+               obj.rightRefractionBorders(i) = RefractionBorder( Vector2d(obj.rightSegments.x(i), obj.rightSegments.y(i)),...
+                                                                Vector2d(obj.rightSegments.x(i+1), obj.rightSegments.y(i+1)),...
+                                                                obj.nMedium,...
+                                                                obj.nLens);
+            end
+            
+            obj.midSectionRefractionBorders(1) = RefractionBorder( Vector2d(obj.rightSegments.x(1), obj.rightSegments.y(1)),...
+                                                                Vector2d(obj.leftSegments.x(end), obj.leftSegments.y(end)),...
+                                                                obj.nMedium,...
+                                                                obj.nLens);
+                                                            
+            obj.midSectionRefractionBorders(2) = RefractionBorder( Vector2d(obj.rightSegments.x(end), obj.rightSegments.y(end)),...
+                                                                Vector2d(obj.leftSegments.x(1), obj.leftSegments.y(1)),...
+                                                                obj.nMedium,...
+                                                                obj.nLens);          
+        end
     end
     
 end
