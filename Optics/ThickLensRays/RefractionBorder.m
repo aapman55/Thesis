@@ -177,6 +177,21 @@ classdef RefractionBorder < handle
             
             refractedRay = LightRay(collisionPoint, lightRay.direction.rotate((refractedAngle - angleOfIncidence)*RBorientation));
         end
+        
+        function position = determineSide(obj, vector)
+        % This function determines which side a certain point is on
+        % relative to the refraction border. The sign is positive when on
+        % the same side as the normal vector is pointing. And 0 when it
+        % lies on the line.
+        
+        % Simple check to see if the input vector really is a vector of
+        % class Vector2d
+        if (~isa(vector , 'Vector2d'))
+            error('The input should be a Vector2d object!')
+        end
+        
+        position = sign((obj.endpoint.x - obj.beginpoint.x) * (vector.y - obj.beginpoint.y) - (obj.endpoint.y - obj.beginpoint.y) * (vector.x - obj.beginpoint.x));
+        end
     end
     
 end

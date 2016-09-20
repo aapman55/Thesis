@@ -14,7 +14,6 @@ classdef ThickLens < handle
     
     properties
         height;                 % Height of the lens
-        xlocation;              % The x-location of the lens
         leftRadius;             % The radius of the left circle of the lens
         rightRadius;            % The radius of the right circle of the lens
         midSectionThickness;    % This indicates the thickness of the non spherical section between the 2 circle radii
@@ -35,13 +34,12 @@ classdef ThickLens < handle
     end
     
     methods
-        function obj = ThickLens(height, xlocation, leftRadius, rightRadius, midSectionThickness)
-            amountOfPiecesPerCurve = 500;
+        function obj = ThickLens(height, leftRadius, rightRadius, midSectionThickness)
+            amountOfPiecesPerCurve = 200;
             
             obj.totalRays = struct('x',[],'y',[]);
             % Save input data
             obj.height = height;
-            obj.xlocation = xlocation;
             obj.leftRadius = leftRadius;
             obj.rightRadius = rightRadius;
             obj.midSectionThickness = midSectionThickness;
@@ -52,7 +50,7 @@ classdef ThickLens < handle
             % surfaces. When the radius has value inf, this case will be
             % caught by making a straight line.
             if (isinf(leftRadius))
-                leftSegments.x = (xlocation - 0.5*midSectionThickness) * ones(2,1);
+                leftSegments.x = ( - 0.5*midSectionThickness) * ones(2,1);
                 leftSegments.y = [-height/2, height/2];
             else
                 % Calculate the angle that matches the height
@@ -66,7 +64,7 @@ classdef ThickLens < handle
                 
                 % move the xcoordinates to the left with 0.5 midsection
                 % width and sqrt(R^2-height^2)
-                distToCenter = xlocation + sqrt(leftRadius^2 - (0.5*height)^2) - 0.5*midSectionThickness;
+                distToCenter =  sqrt(leftRadius^2 - (0.5*height)^2) - 0.5*midSectionThickness;
                 
                 leftSegments.x = leftSegments.x + distToCenter;
             end
@@ -74,7 +72,7 @@ classdef ThickLens < handle
             obj.leftSegments = leftSegments;
             
             if (isinf(rightRadius))
-                rightSegments.x = (xlocation + 0.5*midSectionThickness) * ones(2,1);
+                rightSegments.x = ( 0.5*midSectionThickness) * ones(2,1);
                 rightSegments.y = [height/2, -height/2];
             else
                 % Calculate the angle that matches the height
@@ -87,7 +85,7 @@ classdef ThickLens < handle
                 
                 % move the xcoordinates to the left with 0.5 midsection
                 % width and sqrt(R^2-height^2)
-                distToCenter =  - xlocation +  sqrt(rightRadius^2 - (0.5*height)^2) - 0.5*midSectionThickness;
+                distToCenter =   sqrt(rightRadius^2 - (0.5*height)^2) - 0.5*midSectionThickness;
                 
                 rightSegments.x = rightSegments.x - distToCenter;
             end
@@ -97,6 +95,17 @@ classdef ThickLens < handle
             % Create the refraction borders
             obj.createRefractionBorders();            
             
+        end
+        
+        function translateX(obj, amount)
+           % update the left segments
+           obj.leftSegments.x = obj.leftSegments.x + amount;
+           
+           % Update the right segments
+           obj.rightSegments.x = obj.rightSegments.x + amount;
+           
+           % Recompute geometry
+           obj.createRefractionBorders();
         end
         
         function translateY(obj, amount)
@@ -154,18 +163,20 @@ classdef ThickLens < handle
                 error('Your input must be a LightRay object!');
             end
             
-            % Determine which side of the lens your light ray is from
-            minX = min(obj.leftSegments.x);
-            maxX = max(obj.rightSegments.x);
-            
             % Check if the light ray is not on top of the lens in x
             % direction. 
-            if(lightRay.beginpoint.x > minX && lightRay.beginpoint.x < maxX)
-                error('Please put the lightray on the left or right side of the lens!')
+            position = obj.whichSideOfTheBorder(lightRay.beginpoint);
+            
+            % Determine whether the lightray is on the left or right
+            isInsideLeft = sum(position.left==-1) == length(position.left);
+            isInsideRight = sum(position.right==-1) == length(position.right);
+            
+            if(isInsideLeft && isInsideRight)
+                error('Please put the lightray in front of one of the two surfaces!')
             end
             
             % Case when the lightray is on the left
-            if (lightRay.beginpoint.x < minX)
+            if (isInsideRight)
                 % Refraction border encountered first
                 firstRFBorders = obj.leftRefractionBorders;
                 % Refraction border encountered second
@@ -295,6 +306,53 @@ classdef ThickLens < handle
         function maxThickness = maxThickness(obj)
             maxThickness = max(obj.rightSegments.x) -  min(obj.leftSegments.x);
         end
+        
+        function output = whichSideOfTheBorder(obj, vector)
+           %  This function determines for all the Refraction Borders
+           %  whether a point is on the side in which the normals are
+           %  pointing. As results 3 arrays will be provided, corresponding
+           %  to Left, Middle, Right. Wach array contains entries that
+           %  say 1, 0 or -1.
+           
+           % Simple check to see if the input vector really is a vector of
+           % class Vector2d
+           if (~isa(vector , 'Vector2d'))
+               error('The input should be a Vector2d object!')
+           end
+           
+           % Initialise vectors
+           output.left = zeros(size(obj.leftRefractionBorders));
+           output.middle = zeros(size(obj.midSectionRefractionBorders));
+           output.right = zeros(size(obj.rightRefractionBorders));
+           
+           % Loop over the left borders
+           for i=1:length(obj.leftRefractionBorders)
+               output.left(i) = obj.leftRefractionBorders(i).determineSide(vector);
+           end
+           
+           % Loop over the middle borders
+           for i=1:length(obj.midSectionRefractionBorders)
+               output.middle(i) = obj.midSectionRefractionBorders(i).determineSide(vector);
+           end
+           
+          % Loop over the right borders
+           for i=1:length(obj.rightRefractionBorders)
+               output.right(i) = obj.rightRefractionBorders(i).determineSide(vector);
+           end
+        end
+        
+        function out = isInsideLens(obj, vector)
+        % This function determines whether a point is outside the lens.
+
+        % No need for vector class checking, will be done in the called
+        % function.
+           outcome = obj.whichSideOfTheBorder(vector);           
+           
+           out =    sum(outcome.left==-1) == length(outcome.left) &&...
+                    sum(outcome.middle==-1) == length(outcome.middle) &&...
+                    sum(outcome.right==-1) == length(outcome.right);
+        end
+        
     end
     
     % private helper methods
@@ -319,10 +377,10 @@ classdef ThickLens < handle
                                                                 obj.nLens);
             end
             
-            obj.midSectionRefractionBorders(1) = RefractionBorder( Vector2d(obj.rightSegments.x(1), obj.rightSegments.y(1)),...
-                                                                Vector2d(obj.leftSegments.x(end), obj.leftSegments.y(end)),...
-                                                                obj.nMedium,...
-                                                                obj.nLens);
+            obj.midSectionRefractionBorders(1) = RefractionBorder( Vector2d(obj.leftSegments.x(end), obj.leftSegments.y(end)),...
+                                                                   Vector2d(obj.rightSegments.x(1), obj.rightSegments.y(1)),...                                                                
+                                                                   obj.nMedium,...
+                                                                   obj.nLens);
                                                             
             obj.midSectionRefractionBorders(2) = RefractionBorder( Vector2d(obj.rightSegments.x(end), obj.rightSegments.y(end)),...
                                                                 Vector2d(obj.leftSegments.x(1), obj.leftSegments.y(1)),...
