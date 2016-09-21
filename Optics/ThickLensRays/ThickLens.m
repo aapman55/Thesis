@@ -12,13 +12,15 @@
 %
 classdef ThickLens < handle   
     
-    properties
+    properties(SetAccess = private)
         height;                 % Height of the lens
         leftRadius;             % The radius of the left circle of the lens
         rightRadius;            % The radius of the right circle of the lens
         midSectionThickness;    % This indicates the thickness of the non spherical section between the 2 circle radii
         leftSegments;           % This stores all the segments of the left circle
         rightSegments;          % This stores all the segments of the right circle
+        
+        amountOfPiecesPerCurve = 200;
         
         nLens = 1.5;            % Standard value of index of refraction of the Lens
         nMedium = 1;            % Standard value of index of refraction in which the lens is staying
@@ -35,7 +37,7 @@ classdef ThickLens < handle
     
     methods
         function obj = ThickLens(height, leftRadius, rightRadius, midSectionThickness)
-            amountOfPiecesPerCurve = 200;
+
             
             obj.totalRays = struct('x',[],'y',[]);
             % Save input data
@@ -57,7 +59,7 @@ classdef ThickLens < handle
                 theta = asind(height/2/leftRadius);
                 
                 % Use this theta to build up a lens containing amountOfPiecesPerCurve pieces
-                THETA = linspace(-theta, theta, amountOfPiecesPerCurve);
+                THETA = linspace(-theta, theta, obj.amountOfPiecesPerCurve);
                 % A minus sign to bring the curvature to the left
                 leftSegments.x =  - leftRadius.*cosd(THETA);
                 leftSegments.y = leftRadius.*sind(THETA);
@@ -79,7 +81,7 @@ classdef ThickLens < handle
                 theta = asind(height/2/rightRadius);
                 
                 % Use this theta to build up a lens containing amountOfPiecesPerCurve pieces
-                THETA = linspace(theta, -theta, amountOfPiecesPerCurve);
+                THETA = linspace(theta, -theta, obj.amountOfPiecesPerCurve);
                 rightSegments.x =  rightRadius.*cosd(THETA);
                 rightSegments.y = rightRadius.*sind(THETA);
                 
@@ -134,16 +136,8 @@ classdef ThickLens < handle
             
            % Recompute geometry
            obj.createRefractionBorders();
-        end
-        
-        function setMedium(obj, nMedium)
-           obj.nMedium = nMedium; 
-        end
-        
-        function setLensMaterial(obj, nLens)
-            obj.nLens = nLens;
-        end
-        
+        end        
+       
         function addLightRay(obj, lightRay)
             % Checks if the lightRay is really a LightRay object
             if (~isa(lightRay, 'LightRay'))
@@ -368,6 +362,24 @@ classdef ThickLens < handle
            out =    sum(outcome.left==-1) == length(outcome.left) &&...
                     sum(outcome.middle==-1) == length(outcome.middle) &&...
                     sum(outcome.right==-1) == length(outcome.right);
+        end
+        
+        % ===================================
+        % Setters
+        % ===================================
+        function setMedium(obj, nMedium)
+           % Defines the index of refraction of the medium the lens is in.
+           obj.nMedium = nMedium; 
+        end
+        
+        function setLensMaterial(obj, nLens)
+            % Define the index of refraction of the lens.
+            obj.nLens = nLens;
+        end
+        
+        function setAmtPiecesPerCurve(obj, amtPiecesPerCurve)
+           % Sets how many pieces each curved surface consists of.
+           obj.amountOfPiecesPerCurve = amtPiecesPerCurve; 
         end
         
     end

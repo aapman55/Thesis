@@ -104,9 +104,9 @@ tl2.drawRays(false);
 %% 4f system
 
 tl1 = ThickLens(50, inf, 50, 3);
-tl1.translateX(5);
+tl1.translateX(-5);
 tl2 = ThickLens(50, 50, inf, 3);
-tl2.translateX(-195);
+tl2.translateX(-10);
 % tl1.showRefractionBorders();
 
 for i=-12:2:12
