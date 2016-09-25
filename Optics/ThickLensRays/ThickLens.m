@@ -20,7 +20,12 @@ classdef ThickLens < handle
         leftSegments;           % This stores all the segments of the left circle
         rightSegments;          % This stores all the segments of the right circle
         
+        leftSegmentsOriginal;   % This stores all the segments of the left circle (unoriented)
+        rightSegmentsOriginal;  % This stores all the segments of the right circle (unoriented)
+        
         amountOfPiecesPerCurve = 200;
+        
+        maxThickness;           % The constructor sets the maximumthickness of the lens
         
         nLens = 1.5;            % Standard value of index of refraction of the Lens
         nMedium = 1;            % Standard value of index of refraction in which the lens is staying
@@ -36,6 +41,9 @@ classdef ThickLens < handle
     end
     
     methods
+        %% ==================================
+        % Constructor
+        % ===================================
         function obj = ThickLens(height, leftRadius, rightRadius, midSectionThickness)
 
             
@@ -72,6 +80,7 @@ classdef ThickLens < handle
             end
             
             obj.leftSegments = leftSegments;
+            obj.leftSegmentsOriginal = leftSegments;
             
             if (isinf(rightRadius))
                 rightSegments.x = ( 0.5*midSectionThickness) * ones(2,1);
@@ -93,12 +102,19 @@ classdef ThickLens < handle
             end
             
             obj.rightSegments = rightSegments;
+            obj.rightSegmentsOriginal = rightSegments;
             
             % Create the refraction borders
-            obj.createRefractionBorders();            
+            obj.createRefractionBorders();     
+            
+            % Postprocessing for some properties
+            obj.maxThickness = max(obj.rightSegments.x) -  min(obj.leftSegments.x);
             
         end
         
+        %% ==================================
+        % Lens Re-orientation methods
+        % ===================================
         function translateX(obj, amount)
            % update the left segments
            obj.leftSegments.x = obj.leftSegments.x + amount;
@@ -137,7 +153,17 @@ classdef ThickLens < handle
            % Recompute geometry
            obj.createRefractionBorders();
         end        
-       
+        
+        function resetOrientation(obj)
+           obj.leftSegments = obj.leftSegmentsOriginal;
+           obj.rightSegments = obj.rightSegmentsOriginal;
+          % Recompute geometry
+           obj.createRefractionBorders();
+        end
+        
+        %% ==================================
+        % Core Features
+        % ===================================
         function addLightRay(obj, lightRay)
             % Checks if the lightRay is really a LightRay object
             if (~isa(lightRay, 'LightRay'))
@@ -249,6 +275,9 @@ classdef ThickLens < handle
            refractedRay = secondRay;
         end
         
+        %% ==================================
+        % Visualisations
+        % ===================================
                 
         %Plots the refraction Borders using different Colors (At least
         %since matlab 2014)
@@ -311,12 +340,11 @@ classdef ThickLens < handle
            for i=1:size(obj.totalRays.x,1)
                 plot(obj.totalRays.x(i,:), obj.totalRays.y(i,:), 'color', lines(1))
            end
-        end
+        end       
         
-        % Calculates the maximum thickness of the lens
-        function maxThickness = maxThickness(obj)
-            maxThickness = max(obj.rightSegments.x) -  min(obj.leftSegments.x);
-        end
+        %% ==================================
+        % Collision detection
+        % ===================================
         
         function output = whichSideOfTheBorder(obj, vector)
            %  This function determines for all the Refraction Borders
@@ -364,7 +392,7 @@ classdef ThickLens < handle
                     sum(outcome.right==-1) == length(outcome.right);
         end
         
-        % ===================================
+        %% ==================================
         % Setters
         % ===================================
         function setMedium(obj, nMedium)
@@ -384,7 +412,7 @@ classdef ThickLens < handle
         
     end
     
-    % private helper methods
+    %% private helper methods
     methods(Access = private)
         function createRefractionBorders(obj)
             % Create the RefractionBorders
@@ -415,6 +443,26 @@ classdef ThickLens < handle
                                                                 Vector2d(obj.leftSegments.x(1), obj.leftSegments.y(1)),...
                                                                 obj.nMedium,...
                                                                 obj.nLens);          
+        end
+        
+        %% ==================================
+        % property calculators
+        % ===================================
+        
+        % Calculates the principal planes (with the unoriented lens)
+        function calcPrinciplePlanes(obj)
+            
+            % Left to right ray
+            direction = Vector2d(1,0);
+            leftToRightRay = LightRay(Vector2d(-10*obj.maxThickness,0), direction.rotate(10));
+            [refractedRay, lrPath] = obj.computeLightRay(leftToRightRay);
+            
+            leftIntersect = refractedRay.intersectLightRay(leftToRightRay);
+            
+            obj.draw(true)
+            hold on
+            plot(lrPath.x, lrPath.y)
+            scatter(leftIntersect.x, leftIntersect.y)
         end
     end
     

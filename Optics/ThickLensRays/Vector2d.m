@@ -110,6 +110,15 @@ classdef Vector2d < handle
                 newVector = Vector2d(obj*obj2.x, obj*obj2.y);
            end
         end
+        
+        function out = eq(a,b)
+           % Check whether otherVector' is an instance of the class Vector2d 
+           if(~isa(a, 'Vector2d') || ~isa(b, 'Vector2d'))
+               error('Only Vector2d objects can be compared together!');
+           end
+           
+           out = (a.x == b.x && a.y == b.y); 
+        end
     end
     
 end
