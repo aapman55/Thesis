@@ -21,7 +21,7 @@ classdef Grating
             % Set some default values (further versions might include the
             % posibility to change these values)
             amountOfColors = 500;
-            percentageShift = 50;
+            percentageShift = 0.5;
             
             % Check if the input image is a double matrix
             if(~isa(inputImage, 'double'))

@@ -74,7 +74,7 @@ classdef RefractionBorder < handle
         end
         
         function drawMono(obj, color)
-            plot([obj.beginpoint.x, obj.endpoint.x],[obj.beginpoint.y, obj.endpoint.y] , 'color',color)
+            plot([obj.beginpoint.x, obj.endpoint.x],[obj.beginpoint.y, obj.endpoint.y] , 'color',color,'linewidth',2)
         end
         
         % function to check if a lightray hits this refractionBorder

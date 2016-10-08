@@ -35,5 +35,5 @@ for i = 1: amountOfWaves
     plot3( ones(size(range))*i, range, waveList(i,:), 'color',stdColormap(1,:))
 end
 
-xlabel('Frequency domain')
-ylabel('Time domain')
+xlabel('Frequency domain','rotation',15)
+ylabel('Time domain','rotation',-25)

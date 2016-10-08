@@ -336,9 +336,9 @@ classdef ThickLens < handle
                 obj.draw();
             end
            
-           
+           linecolors = lines(2);
            for i=1:size(obj.totalRays.x,1)
-                plot(obj.totalRays.x(i,:), obj.totalRays.y(i,:), 'color', lines(1))
+                plot(obj.totalRays.x(i,:), obj.totalRays.y(i,:), 'color', linecolors(1,:))
            end
         end       
         
