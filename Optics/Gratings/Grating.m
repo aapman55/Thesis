@@ -13,11 +13,12 @@
 classdef Grating
     
     properties
+        normalisedPic
     end
     
     methods(Static)
         
-        function diffractHorizontally(inputImage)
+        function picture = diffractHorizontally(inputImage)
             % Set some default values (further versions might include the
             % posibility to change these values)
             amountOfColors = 500;
@@ -78,6 +79,8 @@ classdef Grating
             
             figure();
             imagesc(normalisedPic);
+            
+            picture = normalisedPic;
         end
     end
     
