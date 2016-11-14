@@ -89,15 +89,6 @@ classdef DataRayImage < handle
            meanVal = mean(obj.sourceImage(:));
            stdVal = std(obj.sourceImage(:));
            
-%             delta = .5;
-%             pdf = @(x) normpdf(x);
-%             proprnd = @(x) x + rand*2*delta - delta;  
-%             nsamples = 15000;
-%             x = mhsample(1,nsamples,'pdf',pdf,'proprnd',proprnd,'symmetric',1);
-% 
-%             meanVal = mean(x);    %%% Calculate the mean
-%             stdVal = std(x);     %%% Calculate the standard deviation  
-
             lowLimit = max(meanVal - 3*stdVal, min(obj.sourceImage(:)));
             upLimit = min(meanVal + 3*stdVal, max(obj.sourceImage(:)));
            
