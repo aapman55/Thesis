@@ -224,7 +224,8 @@ classdef Lens < handle
            plot([obj.x,obj.x],[-0.5*obj.height, 0.5*obj.height],'color',[0,0,0],'linewidth',2)
            
            % Write the focal length of the lens on top
-           text(obj.x+.5*obj.height, 0.4*obj.height, ['f = ',num2str(obj.f)]);
+           t1 = text(obj.x+.5*obj.height, 0.4*obj.height, ['f = ',num2str(obj.f)]);
+           set(t1,'fontsize',14)
            
            % Draw lens focal points
            focalPointsHandle = scatter([obj.x-obj.f, obj.x+obj.f],[0,0],'markerfacecolor','k');
@@ -367,6 +368,10 @@ classdef Lens < handle
                end
            
            end
+           
+           xlabel('Horizontal/optical axis [mm]')
+           ylabel('Vertical axis [mm]');
+           set(gca,'fontsize',14);
            
            % Handles to be used for the legend
            handles = [lensObjectHandle, lensImageHandle, focalPointsHandle, geometricalRaysHandle];
