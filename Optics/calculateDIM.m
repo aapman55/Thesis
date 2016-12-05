@@ -10,14 +10,23 @@ di = calcDI(do);
 
 M = di./do;
 
-figure
-plotyy(do,M,do,di);
+figure('position',[0 0 800 600])
+[AX,H1,H2] = plotyy(do,M,do,di);
 hold on
 title(['f = ',num2str(f*1000),' mm'])
-xlabel(' do [m]')
-ylabel('Magnification');
+xlabel('Object distance (d_o) [m]')
 grid minor;
+HL = legend('Magnification',' Image distance');
 
+set(HL, 'fontsize' , 14);
 
+set(AX,{'ycolor'},{'k';'k'})
+set(get(AX(1),'Ylabel'),'String','Magnification')
+set(get(AX(2),'Ylabel'),'String','Image distance (d_i) [m]') 
+
+set(H1,'linestyle','-','color',' k','linewidth',2); 
+set(H2,'linestyle','--','color',lines(1),'linewidth',2); 
+
+set(AX,'fontsize', 14)
 end
 

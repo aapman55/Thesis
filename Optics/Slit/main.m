@@ -20,5 +20,5 @@ slit6 = Slit(1/linesPermm*1E-3, 128, 1);
 case6 =slit6.shineLight(692E-9, -4:0.001:4);
 
 %%
-slit7 = Slit(1/1200*1E-3, 4096, 1);
-case7 =slit7.shineLight(692E-9, -4:0.005:4);
+slit = Slit(1/linesPermm*1E-3, 4096, 1);
+case0 =slit.shineLight(692E-9, -4:0.001:4);
