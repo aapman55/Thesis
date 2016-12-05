@@ -7,27 +7,20 @@ if(isRGB(img))
     img = rgb2gray(img);
 end
 
-width = 0;
-
 % Parse direction Should be 'v', or 'h' for vertical or horizontal
 switch direction
     case 'v'
         X = range;
         Y = pivotLine;
         picX = X;
-        picY = Y-width:Y+width;
+        picY = Y;
         cutOut = img(picX,picY)';
-        rangeY = ones(size(range))*Y;
-        rangeX = X;
     case 'h'
         X = pivotLine;
         Y = range;
-        picX = X-width:X+width;
+        picX = X;
         picY = Y;
         cutOut = img(picX,picY);
-        rangeY = Y;
-        rangeX = ones(size(range))*X;
-    otherwise
         error('The direction must either by v or h!')
 end
 
@@ -38,6 +31,8 @@ plot(img(X,Y));
 hold on
 plot(diff(img(X,Y)))
 axis tight
+xlabel('pixels [-]')
+ylabel('Intensity/rate of change of intensity [-]')
 
 subplot(2,1,1)
 imagesc(cutOut);
