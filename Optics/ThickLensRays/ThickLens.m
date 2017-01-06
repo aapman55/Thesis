@@ -306,6 +306,8 @@ classdef ThickLens < handle
             % If a new figure is requested
             if(exist('createFig','var') && createFig)
                 h = figure();
+                xlabel('Horizontal/Optical axis [mm]')
+                ylabel('Vertical axis [mm]')
             else
                 h = 0;
             end

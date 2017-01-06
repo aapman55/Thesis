@@ -109,6 +109,14 @@ classdef cameraImage < handle
            % Change the image
            obj.currentImage = imrotate(obj.currentImage, angle);
         end
+        
+        %% ============================
+        % reset Image
+        %==============================
+        function reset(obj)
+            % Set the original image as current image
+            obj.currentImage = obj.imgData;
+        end
     end
     
 end

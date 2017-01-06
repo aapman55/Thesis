@@ -1,14 +1,18 @@
-function [ do,di,M ] = calculateDIM( f )
+function [ do,di,M, AX, H1, H2 ] = calculateDIM( f, variant )
 %calculateDIM calculates the image distance and the magnification factor
 %with a known focal length and varying object distance.
 
 calcDI = @(do) 1./(1./f-1./do);
 
-do = 1.1*f:0.01*f:4*f;
+if (variant==1)
+    do = 1.1*f:0.01*f:4*f;
+else
+    do = 0:0.01*f:f;
+end
 
 di = calcDI(do);
 
-M = di./do;
+M = -di./do;
 
 figure('position',[0 0 800 600])
 [AX,H1,H2] = plotyy(do,M,do,di);
@@ -16,7 +20,7 @@ hold on
 title(['f = ',num2str(f*1000),' mm'])
 xlabel('Object distance (d_o) [m]')
 grid minor;
-HL = legend('Magnification',' Image distance');
+HL = legend('Magnification',' Image distance','location','east');
 
 set(HL, 'fontsize' , 14);
 

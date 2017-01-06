@@ -21,22 +21,27 @@ switch direction
         picX = X;
         picY = Y;
         cutOut = img(picX,picY);
+    otherwise
         error('The direction must either by v or h!')
 end
 
 % Create figures
 handle = figure();
 subplot(2,1,2)
-plot(img(X,Y));
+plot(picX,img(X,Y));
 hold on
-plot(diff(img(X,Y)))
+plot(picX(1:end-1),diff(img(X,Y)))
 axis tight
 xlabel('pixels [-]')
-ylabel('Intensity/rate of change of intensity [-]')
+ylabel('Intensity [-]')
+legend('Intensity','Change in intensity')
+grid on
 
 subplot(2,1,1)
-imagesc(cutOut);
+imagesc(picX, picY,cutOut);
 colormap('gray');
+xlabel('Pixels [-]')
+ylabel('Pixels [-]')
 
 end
 

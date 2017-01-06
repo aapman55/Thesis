@@ -5,6 +5,8 @@ clear; close all; clc;
 
 % Used units are in mm
 
+%Unify figure sizes
+figSize = [0 0 1500 400];
 %% 2f Magnification : 1x, incoherent
 
 % Define lens (f = 100mm)
@@ -16,7 +18,7 @@ O1 = LensObject(-200, 15);
 L1.setObject(O1);
 L1.computeImage();
 
-figure('name','2f magnification 1x')
+figure('name','2f magnification 1x','position',figSize)
 L1.draw();
 
 %% 2f Magnification : 2x, incoherent
@@ -30,7 +32,7 @@ O1 = LensObject(-150, 15);
 L1.setObject(O1);
 L1.computeImage();
 
-figure('name','2f magnification 2x')
+figure('name','2f magnification 2x','position',figSize)
 L1.draw();
 
 %% 2f Magnification : 0.5x, incoherent
@@ -44,7 +46,7 @@ O1 = LensObject(-300, 15);
 L1.setObject(O1);
 L1.computeImage();
 
-figure('name','2f magnification 2x')
+figure('name','2f magnification 2x','position',figSize)
 L1.draw();
 
 %% 2f Magnification : 2x, incoherent imaginary
@@ -58,16 +60,58 @@ O1 = LensObject(-50, 15);
 L1.setObject(O1);
 L1.computeImage();
 
-figure('name','2f magnification 2x imaginary')
+figure('name','2f magnification 2x imaginary','position',figSize)
 L1.draw();
 
+%% 2 lens normal setting diffuse
+
+% Define lens (f = 100mm)
+L1 = Lens(100, 0, 50);
+
+% Define lens (f = 100mm)
+L2 = Lens(100, 500, 50);
+
+% Define object
+O1 = LensObject(-200, 15);
+
+L1.setObject(O1);
+L1.computeImage();
+
+L2.setObject(L1.computedImage.toObject());
+L2.computeImage();
+
+figure('name','4f magnification 1x','position',figSize)
+L1.draw();
+grid minor;
+L2.draw();
+%% 2 lens closer setting diffuse
+
+% Define lens (f = 100mm)
+L1 = Lens(100, 0, 50);
+
+% Define lens (f = 100mm)
+L2 = Lens(100, 250, 50);
+
+% Define object
+O1 = LensObject(-200, 15);
+
+L1.setObject(O1);
+L1.computeImage();
+
+L2.setObject(L1.computedImage.toObject());
+L2.computeImage();
+
+figure('name','4f magnification 1x','position',figSize)
+L1.draw();
+grid minor;
+L2.draw();
 %% 4f Magnification : 1x, incoherent
 
 % Define lens (f = 100mm)
 L1 = Lens(100, 0, 50);
 
 % Define lens (f = 100mm)
-L2 = Lens(100, 200, 50);
+L2 = Lens(100, 300, 50);
 
 % Define object
 O1 = LensObject(-100, 15);
@@ -78,7 +122,7 @@ L1.computeImage();
 L2.setObject(L1.computedImage.toObject());
 L2.computeImage();
 
-figure('name','4f magnification 1x')
+figure('name','4f magnification 1x','position',figSize)
 L1.draw();
 grid minor;
 L2.draw();
@@ -100,7 +144,7 @@ L1.computeImage();
 L2.setObject(L1.computedImage.toObject());
 L2.computeImage();
 
-figure('name','4f magnification 2x')
+figure('name','4f magnification 2x','position',figSize)
 L1.draw();
 grid minor;
 L2.draw();
@@ -122,7 +166,7 @@ L1.computeImage();
 L2.setObject(L1.computedImage.toObject());
 L2.computeImage();
 
-figure('name','4f magnification 0.5x')
+figure('name','4f magnification 0.5x','position',figSize)
 L1.draw();
 grid minor;
 L2.draw();
@@ -138,7 +182,7 @@ O1 = LensObject(-inf, 15);
 L1.setObject(O1);
 L1.computeImage();
 
-figure('name','2f magnification 1x')
+figure('name','2f magnification 1x','position',figSize)
 L1.draw();
 
 %% 4f Magnification : 1x, coherent
@@ -158,7 +202,7 @@ L1.computeImage();
 L2.setObject(L1.computedImage.toObject());
 L2.computeImage();
 
-figure('name','4f magnification 1x')
+figure('name','4f magnification 1x','position',figSize)
 L1.draw();
 grid minor;
 L2.draw();
@@ -180,7 +224,7 @@ L1.computeImage();
 L2.setObject(L1.computedImage.toObject());
 L2.computeImage();
 
-figure('name','4f magnification 2x')
+figure('name','4f magnification 2x','position',figSize)
 L1.draw();
 grid minor;
 L2.draw();
@@ -202,7 +246,7 @@ L1.computeImage();
 L2.setObject(L1.computedImage.toObject());
 L2.computeImage();
 
-figure('name','4f magnification 0.5x')
+figure('name','4f magnification 0.5x','position',figSize)
 L1.draw();
 grid minor;
 L2.draw();
@@ -224,7 +268,7 @@ L1.computeImage();
 L2.setObject(L1.computedImage.toObject());
 L2.computeImage();
 
-figure('name','4f magnification 2x')
+figure('name','4f magnification 2x','position',figSize)
 L1.draw();
 grid minor;
 L2.draw();
@@ -246,7 +290,7 @@ L1.computeImage();
 L2.setObject(L1.computedImage.toObject());
 L2.computeImage();
 
-figure('name','4f magnification 2x')
+figure('name','4f magnification 2x','position',figSize)
 L1.draw();
 grid minor;
 L2.draw();

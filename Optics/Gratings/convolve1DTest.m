@@ -83,6 +83,8 @@ factor = 1/(maximumBrightness-minimumBrightness);
 
 squeezedCorrected = squeezed*factor;
 
+filler = repmat(zeros(size(squeezedCorrected)),1,5);
+
 figure('position',[0 0 plotWidth plotHeight]);
-image(squeezedCorrected);
+image([filler,squeezedCorrected,filler]);
 axis off;
