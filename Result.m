@@ -93,7 +93,7 @@ classdef Result < handle
             try
                 spectrumObject = SpectrometerMeasurement.load([folderPath,'/',spectroMeterFiles(1).name]);
                 canonImageObject = cameraImage([folderPath,'/',canonFiles(1).name]);
-                if (length(dataRayFiles) > 1)
+                if (length(dataRayFiles) >= 1)
                     dataRayObject = DataRayImage.load([folderPath,'/',dataRayFiles(1).name]);
                 else
                     dataRayObject = [];
