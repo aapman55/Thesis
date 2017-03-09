@@ -8,6 +8,7 @@ plot(x,sin(x)+sin(x))
 legend('wave 1','wave 2','sum of the waves')
 axis tight
 grid minor
+set(gca, 'YTick',[], 'XTick',[],'fontsize',14)
 
 figure
 plot(x,sin(x),'linewidth',1)
@@ -17,6 +18,8 @@ plot(x,sin(x)+sin(pi+x))
 legend('wave 1','wave 2','sum of the waves')
 axis tight
 grid minor
+set(gca, 'YTick',[], 'XTick',[],'fontsize',14)
+
 
 % Arbitrary sinc function
 figure
