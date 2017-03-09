@@ -40,7 +40,7 @@ classdef cameraImage < handle
                 obj.aperture        = imgEXIF.DigitalCamera.FNumber;
                 obj.focalLength     = imgEXIF.DigitalCamera.FocalLength;
             catch e
-                error('Error loading image EXIF data!')
+                warning('Error loading image EXIF data! EXIF data is skipped!')
             end
         end
         %% =========================
@@ -110,6 +110,22 @@ classdef cameraImage < handle
            obj.currentImage = imrotate(obj.currentImage, angle);
         end
         
+        %% =========================
+        % Rotate 90 degrees amount times
+        %=========================
+        function reflectH(obj)
+                      
+           % Change the image
+           obj.currentImage = flipud(obj.currentImage);
+        end
+        %% =========================
+        % Increase brightness by factor
+        %=========================
+        function increaseBrightness(obj, factor)
+                      
+           % Change the image
+           obj.currentImage = obj.currentImage*factor;
+        end
         %% ============================
         % reset Image
         %==============================

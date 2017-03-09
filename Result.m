@@ -20,7 +20,7 @@ classdef Result < handle
         %% ========================
         % Simultaneous plot with spectrum and color image
         %==========================
-        function h = plotImageAndSpectrum(obj, scanLine, twoImagePoints, twoSpectrumWaveLengths)
+        function h = plotImageAndSpectrum(obj, scanLine, twoImagePoints, twoSpectrumWaveLengths, color)
  
             % Preprocessing spectrumData
             spectrumRange = obj.spectrumObject.DATA(:,1);
@@ -55,7 +55,7 @@ classdef Result < handle
             outputImage = rot90(obj.canonImageObject.currentImage(:,:,:),0);
             image(X(:),Y(:),outputImage);
             hold on
-            plot(spectrumRange, spectrumValue,'color',[1,1,1])
+            plot(spectrumRange, spectrumValue,'color',color)
             axis([spectrumRange(1)-shift, spectrumRange(1)+newSpectrumLength-shift, -percentageYshift*max(spectrumValue), max(spectrumValue)])
             axis xy
         end
