@@ -83,6 +83,11 @@ classdef DataRayImage < handle
             colormap('gray');
             axis image;
         end
+                
+        % Show the bracketedimage
+        function h = reset(obj)
+            obj.bracketedImage = obj.sourceImage;
+        end
         
         % Auto exposure
         function autoExposure(obj)
